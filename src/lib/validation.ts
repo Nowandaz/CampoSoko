@@ -80,3 +80,7 @@ export const listingSchema = z.object({
     ctx.addIssue({ code: "custom", path: ["delivery_time"], message: "Enter an estimated delivery time, e.g. 2 days" });
   }
 });
+
+export const passwordSchema = z.string().min(8, "Use at least 8 characters").max(72, "Password is too long");
+export const newPasswordSchema = z.object({ password: passwordSchema, confirm: z.string() })
+  .refine((v) => v.password === v.confirm, { message: "Passwords don't match", path: ["confirm"] });

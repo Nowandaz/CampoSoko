@@ -1,0 +1,17 @@
+"use client";
+import { useActionState } from "react";
+import { setPassword } from "@/app/(auth)/actions";
+import { Field, Notice, Spinner, btnPrimary } from "@/components/ui/form";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+
+export function PasswordForm() {
+  const [s, action, pending] = useActionState(setPassword, {});
+  return (
+    <form action={action} className="space-y-4">
+      <Field label="New password" hint="At least 8 characters."><PasswordInput name="password" autoComplete="new-password" minLength={8} /></Field>
+      <Field label="Confirm new password"><PasswordInput name="confirm" autoComplete="new-password" minLength={8} /></Field>
+      <Notice error={s.error} notice={s.notice} />
+      <button className={btnPrimary} disabled={pending}>{pending && <Spinner />}{pending ? "Saving" : "Save password"}</button>
+    </form>
+  );
+}

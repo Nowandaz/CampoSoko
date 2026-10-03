@@ -1,48 +1,36 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { APP_TAGLINE } from "@/config/site";
-import { Chat, Bell, Shield, Tag } from "@/components/ui/icons";
 import { getMe } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
+import { parseFeedParams } from "@/lib/feed";
+import { Feed } from "@/components/feed/Feed";
+import { FeedFilters } from "@/components/feed/FeedFilters";
+import { GridSkeleton } from "@/components/feed/ListingCard";
 
-const steps = [
-  { icon: Tag, title: "List in a minute", text: "Post goods or online services with photos and a price." },
-  { icon: Chat, title: "Talk on WhatsApp", text: "Buyers message you directly. No in-app chat to check." },
-  { icon: Bell, title: "Never miss a match", text: "Post what you want and get alerted when it appears." },
-  { icon: Shield, title: "Trade safely", text: "Report, block and follow built-in meet-up tips." },
-];
-
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const me = await getMe();
+  const p = parseFeedParams(await searchParams, me?.campus_id);
+  const sb = await createClient();
+  const [{ data: campuses }, { data: categories }] = await Promise.all([
+    sb.from("campuses").select("id, name").eq("active", true).order("name"),
+    sb.from("categories").select("id, name, applies_to").eq("active", true).order("sort_order"),
+  ]);
   return (
-    <div className="space-y-16 py-6 sm:py-12">
-      <section className="mx-auto max-w-2xl text-center">
-        <p className="inline-flex rounded-full border border-border bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">{me ? `Welcome back, ${me.full_name.split(" ")[0]}` : "Free for students in Kenya"}</p>
-        <h1 className="mt-5 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl">{APP_TAGLINE}</h1>
-        <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
-          Buy, sell and request goods and online services from students on your campus.
-        </p>
-        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          {me ? (
-            <>
-              <Link href="/sell" className="inline-flex h-12 items-center justify-center rounded-lg bg-primary px-6 font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover">Start selling</Link>
-              <Link href="/dashboard" className="inline-flex h-12 items-center justify-center rounded-lg border border-border bg-card px-6 font-semibold hover:bg-muted">My dashboard</Link>
-            </>
-          ) : (
-            <>
-              <Link href="/signup" className="inline-flex h-12 items-center justify-center rounded-lg bg-primary px-6 font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover">Get started</Link>
-              <Link href="/login" className="inline-flex h-12 items-center justify-center rounded-lg border border-border bg-card px-6 font-semibold hover:bg-muted">Log in</Link>
-            </>
-          )}
-        </div>
-      </section>
-      <section aria-labelledby="how" className="grid gap-4 sm:grid-cols-2">
-        <h2 id="how" className="sr-only">How it works</h2>
-        {steps.map(({ icon: Icon, title, text }) => (
-          <div key={title} className="flex gap-4 rounded-2xl border border-border bg-card p-5">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary"><Icon /></span>
-            <div><h3 className="font-semibold">{title}</h3><p className="mt-1 text-sm text-muted-foreground">{text}</p></div>
+    <div className="space-y-6">
+      {!me && (
+        <section className="flex flex-col gap-4 rounded-2xl border border-border bg-primary-soft p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">{APP_TAGLINE}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Buy, sell and request goods and online services from students on your campus.</p>
           </div>
-        ))}
-      </section>
+          <Link href="/signup" className="inline-flex h-11 shrink-0 items-center justify-center rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary-hover">Create a free account</Link>
+        </section>
+      )}
+      <FeedFilters p={p} campuses={campuses ?? []} categories={categories ?? []} myCampus={me?.campus_id} />
+      <Suspense key={JSON.stringify(p)} fallback={<GridSkeleton />}>
+        <Feed p={p} userId={me?.id} />
+      </Suspense>
     </div>
   );
 }

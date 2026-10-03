@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { allow, clientIp } from "@/lib/rate-limit";
-import { emailSchema, otpSchema, signupSchema, profileSchema, safeNext, firstError } from "@/lib/validation";
+import { emailSchema, otpSchema, signupSchema, profileSchema, newPasswordSchema, safeNext, firstError } from "@/lib/validation";
 import { requireMe } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
@@ -97,4 +97,29 @@ export async function updateProfile(_: FormState, fd: FormData): Promise<FormSta
   if (error) return { error: "Could not save your changes" };
   revalidatePath("/account");
   return { notice: "Saved ✔" };
+}
+
+export async function loginWithPassword(_: FormState, fd: FormData): Promise<FormState> {
+  const email = emailSchema.safeParse(fd.get("email"));
+  const password = String(fd.get("password") ?? "");
+  if (!email.success || !password) return { error: "Enter your email and password" };
+  if (!(await allow(`pw:${email.data}`, 8, 900)) || !(await allow(`pw:ip:${await clientIp()}`, 30, 900))) {
+    return { error: "Too many attempts. Wait 15 minutes, or log in with an email code instead." };
+  }
+  const sb = await createClient();
+  const { error } = await sb.auth.signInWithPassword({ email: email.data, password });
+  if (error) return { error: "Wrong email or password. If you haven't set a password yet, use an email code." };
+  redirect(safeNext(fd.get("next")));
+}
+
+export async function setPassword(_: FormState, fd: FormData): Promise<FormState> {
+  await requireMe("/account");
+  const parsed = newPasswordSchema.safeParse({ password: fd.get("password"), confirm: fd.get("confirm") });
+  if (!parsed.success) return { error: firstError(parsed.error) };
+  const sb = await createClient();
+  const { error } = await sb.auth.updateUser({ password: parsed.data.password });
+  if (error) {
+    return { error: /different from the old/i.test(error.message) ? "Choose a password you haven't used before." : "Could not update your password. Try again." };
+  }
+  return { notice: "Password saved. You can now log in with it." };
 }
