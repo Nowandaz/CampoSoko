@@ -1,5 +1,6 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useSafeForm } from "@/lib/use-safe-form";
+import { useState } from "react";
 import Link from "next/link";
 import { createWanted } from "@/app/wanted/actions";
 import { Field, Notice, Spinner, btnPrimary, inputCls } from "@/components/ui/form";
@@ -7,11 +8,11 @@ import { Field, Notice, Spinner, btnPrimary, inputCls } from "@/components/ui/fo
 type Cat = { id: string; name: string; applies_to: "goods" | "service" | "both" };
 
 export function WantedForm({ categories }: { categories: Cat[] }) {
-  const [state, action, pending] = useActionState(createWanted, {});
+  const [state, action, pending] = useSafeForm(createWanted, {});
   const [type, setType] = useState<"goods" | "service">("goods");
   const cats = categories.filter((c) => c.applies_to === "both" || c.applies_to === type);
   return (
-    <form action={action} className="space-y-5">
+    <form onSubmit={action} className="space-y-5">
       <input type="hidden" name="type" value={type} />
       <div role="tablist" aria-label="What are you looking for" className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">
         {(["goods", "service"] as const).map((t) => (

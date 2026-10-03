@@ -1,12 +1,13 @@
 "use client";
-import { useActionState } from "react";
+import { useSafeForm } from "@/lib/use-safe-form";
+
 import { updateProfile } from "@/app/(auth)/actions";
 import { Field, Notice, Spinner, btnPrimary, inputCls } from "@/components/ui/form";
 
 export function AccountForm({ name, whatsapp, displayName, publicPreview }: { name: string; whatsapp: string; displayName: string; publicPreview: string }) {
-  const [s, action, pending] = useActionState(updateProfile, {});
+  const [s, action, pending] = useSafeForm(updateProfile, {});
   return (
-    <form action={action} className="space-y-4">
+    <form onSubmit={action} className="space-y-4">
       <Field label="Full name"><input name="full_name" defaultValue={name} required className={inputCls} /></Field>
       <Field label="Public name (optional)" hint={`Shown on wanted ads and when you have no shop name. Leave blank to show "${publicPreview}". Your full name stays private.`}>
         <input name="display_name" defaultValue={displayName} maxLength={30} className={inputCls} />

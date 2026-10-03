@@ -1,5 +1,6 @@
 "use client";
-import { useActionState } from "react";
+import { useSafeForm } from "@/lib/use-safe-form";
+
 import { adminVoidReceipt, saveCampus, saveCategory, type AState } from "@/app/admin/actions";
 import { inputCls } from "@/components/ui/form";
 import { smallBtn } from "./ui";
@@ -9,9 +10,9 @@ const f = `${inputCls} h-10`;
 
 type Campus = { id?: string; name?: string; county?: string | null; email_domain?: string | null };
 export function CampusForm({ c }: { c?: Campus }) {
-  const [s, action, pending] = useActionState(saveCampus, {});
+  const [s, action, pending] = useSafeForm(saveCampus, {});
   return (
-    <form action={action} className="grid gap-2 sm:grid-cols-[1.4fr_1fr_1.2fr_auto] sm:items-start">
+    <form onSubmit={action} className="grid gap-2 sm:grid-cols-[1.4fr_1fr_1.2fr_auto] sm:items-start">
       {c?.id && <input type="hidden" name="id" value={c.id} />}
       <input name="name" defaultValue={c?.name} placeholder="Campus name" required aria-label="Campus name" className={f} />
       <input name="county" defaultValue={c?.county ?? ""} placeholder="County" aria-label="County" className={f} />
@@ -23,9 +24,9 @@ export function CampusForm({ c }: { c?: Campus }) {
 
 type Cat = { id?: string; name?: string; slug?: string; applies_to?: string; sort_order?: number };
 export function CategoryForm({ c }: { c?: Cat }) {
-  const [s, action, pending] = useActionState(saveCategory, {});
+  const [s, action, pending] = useSafeForm(saveCategory, {});
   return (
-    <form action={action} className="grid gap-2 sm:grid-cols-[1.2fr_1.2fr_1fr_5rem_auto] sm:items-start">
+    <form onSubmit={action} className="grid gap-2 sm:grid-cols-[1.2fr_1.2fr_1fr_5rem_auto] sm:items-start">
       {c?.id && <input type="hidden" name="id" value={c.id} />}
       <input name="name" defaultValue={c?.name} placeholder="Name" required aria-label="Name" className={f} />
       <input name="slug" defaultValue={c?.slug} placeholder="slug-like-this" required aria-label="Slug" className={f} />
@@ -37,9 +38,9 @@ export function CategoryForm({ c }: { c?: Cat }) {
 }
 
 export function AdminVoid({ id }: { id: string }) {
-  const [s, action, pending] = useActionState(adminVoidReceipt, {});
+  const [s, action, pending] = useSafeForm(adminVoidReceipt, {});
   return (
-    <form action={action} className="flex flex-wrap items-start gap-1.5">
+    <form onSubmit={action} className="flex flex-wrap items-start gap-1.5">
       <input type="hidden" name="id" value={id} />
       <input name="reason" required minLength={3} maxLength={300} placeholder="Reason" aria-label="Void reason" className={`${f} w-40`} />
       <button disabled={pending} className={`${smallBtn} h-10 text-danger`}>Void</button>

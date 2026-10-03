@@ -1,5 +1,6 @@
 "use client";
-import { useActionState } from "react";
+import { useSafeForm } from "@/lib/use-safe-form";
+
 import { saveSellerProfile } from "@/app/sell/actions";
 import { Field, Notice, Spinner, btnPrimary, inputCls } from "@/components/ui/form";
 import { ImageUploader } from "./ImageUploader";
@@ -7,9 +8,9 @@ import { ImageUploader } from "./ImageUploader";
 type Initial = { shop_name: string; location: string; description: string; avatar_url: string | null };
 
 export function SellerProfileForm({ userId, initial, next }: { userId: string; initial?: Initial; next: string }) {
-  const [s, action, pending] = useActionState(saveSellerProfile, {});
+  const [s, action, pending] = useSafeForm(saveSellerProfile, {});
   return (
-    <form action={action} className="space-y-5">
+    <form onSubmit={action} className="space-y-5">
       <input type="hidden" name="next" value={next} />
       <Field label="Shop or display name">
         <input name="shop_name" defaultValue={initial?.shop_name} required minLength={2} maxLength={60} placeholder="e.g. Amina's Tech Corner" className={inputCls} />

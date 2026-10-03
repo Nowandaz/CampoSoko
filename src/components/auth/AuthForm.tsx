@@ -1,5 +1,6 @@
 "use client";
-import { useActionState, useEffect, useState } from "react";
+import { useSafeForm } from "@/lib/use-safe-form";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { loginWithPassword, requestLoginCode, requestSignupCode, verifyCode } from "@/app/(auth)/actions";
 import { PasswordInput } from "@/components/ui/PasswordInput";
@@ -9,7 +10,7 @@ type Campus = { id: string; name: string };
 const link = "inline-flex h-10 items-center font-medium text-primary hover:underline";
 
 function CodeStep({ email, next, resend }: { email: string; next: string; resend: (fd: FormData) => void }) {
-  const [state, action, pending] = useActionState(verifyCode, {});
+  const [state, action, pending] = useSafeForm(verifyCode, {});
   const [wait, setWait] = useState(45);
   useEffect(() => {
     if (wait <= 0) return;
@@ -18,7 +19,7 @@ function CodeStep({ email, next, resend }: { email: string; next: string; resend
   }, [wait]);
   return (
     <div className="space-y-5">
-      <form action={action} className="space-y-5">
+      <form onSubmit={action} className="space-y-5">
         <input type="hidden" name="email" value={email} />
         <input type="hidden" name="next" value={next} />
         <p className="rounded-lg bg-muted px-3.5 py-3 text-sm text-muted-foreground">
@@ -43,14 +44,14 @@ function CodeStep({ email, next, resend }: { email: string; next: string; resend
 
 export function LoginForm({ next }: { next: string }) {
   const [reset, setReset] = useState(false);
-  const [codeState, codeAction, codePending] = useActionState(requestLoginCode, {});
-  const [pwState, pwAction, pwPending] = useActionState(loginWithPassword, {});
+  const [codeState, codeAction, codePending, codeActionSend] = useSafeForm(requestLoginCode, {});
+  const [pwState, pwAction, pwPending] = useSafeForm(loginWithPassword, {});
   if (codeState.step === "code" && codeState.email) {
-    return <CodeStep email={codeState.email} next="/set-password" resend={codeAction} />;
+    return <CodeStep email={codeState.email} next="/set-password" resend={codeActionSend} />;
   }
   if (reset) {
     return (
-      <form action={codeAction} className="space-y-5">
+      <form onSubmit={codeAction} className="space-y-5">
         <p className="rounded-lg bg-muted px-3.5 py-3 text-sm text-muted-foreground">Enter your email. We will send a code, then you can choose a new password.</p>
         <Field label="Email address">
           <input name="email" type="email" autoComplete="email" required placeholder="you@university.ac.ke" className={inputCls} />
@@ -62,7 +63,7 @@ export function LoginForm({ next }: { next: string }) {
     );
   }
   return (
-    <form action={pwAction} className="space-y-5">
+    <form onSubmit={pwAction} className="space-y-5">
       <input type="hidden" name="next" value={next} />
       <Field label="Email address">
         <input name="email" type="email" autoComplete="email" required placeholder="you@university.ac.ke" className={inputCls} />
@@ -77,10 +78,10 @@ export function LoginForm({ next }: { next: string }) {
 }
 
 export function SignupForm({ campuses, next }: { campuses: Campus[]; next: string }) {
-  const [state, action, pending] = useActionState(requestSignupCode, {});
-  if (state.step === "code" && state.email) return <CodeStep email={state.email} next={`/set-password?next=${encodeURIComponent(next)}`} resend={action} />;
+  const [state, action, pending, actionSend] = useSafeForm(requestSignupCode, {});
+  if (state.step === "code" && state.email) return <CodeStep email={state.email} next={`/set-password?next=${encodeURIComponent(next)}`} resend={actionSend} />;
   return (
-    <form action={action} className="space-y-4">
+    <form onSubmit={action} className="space-y-4">
       <Field label="Full name">
         <input name="full_name" autoComplete="name" required minLength={2} placeholder="Jane Wanjiku" className={inputCls} />
       </Field>

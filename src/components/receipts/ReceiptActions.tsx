@@ -1,5 +1,6 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useSafeForm } from "@/lib/use-safe-form";
+import { useState } from "react";
 import { voidReceipt } from "@/app/receipts/actions";
 import { Notice, Spinner } from "@/components/ui/form";
 
@@ -20,10 +21,10 @@ export function ShareBar({ pdfHref, shareText, waHref, link }: { pdfHref: string
 
 export function VoidForm({ id }: { id: string }) {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useActionState(voidReceipt, {});
+  const [state, action, pending] = useSafeForm(voidReceipt, {});
   if (!open) return <button type="button" onClick={() => setOpen(true)} className={`${btn} text-danger`}>Void receipt</button>;
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-danger/30 bg-danger/5 p-4">
+    <form onSubmit={action} className="space-y-3 rounded-xl border border-danger/30 bg-danger/5 p-4">
       <input type="hidden" name="id" value={id} />
       <label className="block text-sm font-medium">Reason for voiding
         <input name="reason" required minLength={3} maxLength={300} placeholder="e.g. Buyer cancelled the order" className="mt-1.5 block h-12 w-full rounded-lg border border-border bg-card px-3.5 text-base outline-none focus:border-primary" />

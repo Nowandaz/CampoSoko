@@ -1,5 +1,6 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useSafeForm } from "@/lib/use-safe-form";
+import { useState } from "react";
 import { createListing, updateListing } from "@/app/sell/actions";
 import { Field, Notice, Spinner, btnPrimary, inputCls } from "@/components/ui/form";
 import { ImageUploader } from "./ImageUploader";
@@ -20,12 +21,12 @@ export function ListingForm({ userId, categories, defaultLocation, initial, form
   formAction?: FormAction; extraTop?: React.ReactNode; cancelHref?: string;
 }) {
   const editing = Boolean(initial);
-  const [state, action, pending] = useActionState(formAction ?? (editing ? updateListing : createListing), {});
+  const [state, action, pending] = useSafeForm(formAction ?? (editing ? updateListing : createListing), {});
   const [type, setType] = useState<"goods" | "service">(initial?.type ?? "goods");
   const cats = categories.filter((c) => c.applies_to === "both" || c.applies_to === type);
 
   return (
-    <form action={action} className="space-y-5">
+    <form onSubmit={action} className="space-y-5">
       {extraTop}
       {initial && <input type="hidden" name="id" value={initial.id} />}
       <input type="hidden" name="type" value={type} />

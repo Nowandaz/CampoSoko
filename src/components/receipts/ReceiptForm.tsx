@@ -1,5 +1,6 @@
 "use client";
-import { useActionState, useMemo, useState } from "react";
+import { useSafeForm } from "@/lib/use-safe-form";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { createReceipt } from "@/app/receipts/actions";
 import { Field, Notice, Spinner, btnPrimary, inputCls } from "@/components/ui/form";
@@ -10,7 +11,7 @@ type Row = { key: number; name: string; qty: string; price: string };
 let k = 1;
 
 export function ReceiptForm({ listings, preselect, today }: { listings: L[]; preselect?: string; today: string }) {
-  const [state, action, pending] = useActionState(createReceipt, {});
+  const [state, action, pending] = useSafeForm(createReceipt, {});
   const initial = listings.find((l) => l.id === preselect);
   const [listingId, setListingId] = useState(initial?.id ?? "");
   const [rows, setRows] = useState<Row[]>([{ key: k++, name: initial?.title ?? "", qty: "1", price: initial ? String(initial.price) : "" }]);
@@ -26,7 +27,7 @@ export function ReceiptForm({ listings, preselect, today }: { listings: L[]; pre
   const set = (key: number, patch: Partial<Row>) => setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...patch } : r)));
 
   return (
-    <form action={action} className="space-y-6">
+    <form onSubmit={action} className="space-y-6">
       <input type="hidden" name="listing_id" value={listingId} />
       <input type="hidden" name="payment_method" value={method} />
 
