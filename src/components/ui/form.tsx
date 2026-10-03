@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Alert, Check } from "./icons";
 
 export const inputCls =
-  "block w-full h-12 rounded-lg border border-border bg-card px-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/70 " +
+  "block w-full h-12 rounded-lg border border-border bg-card px-3.5 text-base text-foreground sm:text-[15px] placeholder:text-muted-foreground/70 " +
   "transition-colors hover:border-muted-foreground/40 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15 disabled:opacity-60";
 
 export const btnPrimary =

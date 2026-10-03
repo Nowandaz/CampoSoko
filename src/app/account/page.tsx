@@ -2,6 +2,8 @@ import { requireMe } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { AccountForm } from "@/components/auth/AccountForm";
 import { Notice } from "@/components/ui/form";
+import Link from "next/link";
+import { logout } from "@/app/(auth)/actions";
 import { PasswordForm } from "@/components/auth/PasswordForm";
 
 export const metadata = { title: "My account" };
@@ -24,6 +26,10 @@ export default async function Page() {
         <p className="mb-4 mt-1 text-sm text-muted-foreground">Change the password you use to log in.</p>
         <PasswordForm />
       </section>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        {me.role === "admin" && <Link href="/admin" className="inline-flex h-12 flex-1 items-center justify-center rounded-lg border border-border font-semibold hover:bg-muted">Admin dashboard</Link>}
+        <form action={logout} className="flex-1"><button className="inline-flex h-12 w-full items-center justify-center rounded-lg border border-border font-semibold text-danger hover:bg-muted">Log out</button></form>
+      </div>
     </div>
   );
 }

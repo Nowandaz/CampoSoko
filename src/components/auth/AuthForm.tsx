@@ -6,7 +6,7 @@ import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Field, Notice, Spinner, btnPrimary, inputCls } from "@/components/ui/form";
 
 type Campus = { id: string; name: string };
-const link = "font-medium text-primary hover:underline";
+const link = "inline-flex h-10 items-center font-medium text-primary hover:underline";
 
 function CodeStep({ email, next, resend }: { email: string; next: string; resend: (fd: FormData) => void }) {
   const [state, action, pending] = useActionState(verifyCode, {});
