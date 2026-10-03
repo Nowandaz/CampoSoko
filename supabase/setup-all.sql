@@ -332,7 +332,9 @@ grant select on public_profiles to anon, authenticated;
 -- Reveal WhatsApp: auth required, not suspended, not blocked; logs the contact click.
 create or replace function get_listing_contact(p_listing uuid)
 returns text language plpgsql security definer set search_path = public as $$
-declare l listings; w text;
+declare
+  l listings;
+  w text;
 begin
   if auth.uid() is null then raise exception 'Login required'; end if;
   if not is_active_user() then raise exception 'Account suspended'; end if;
@@ -347,7 +349,9 @@ grant execute on function get_listing_contact(uuid) to authenticated;
 
 create or replace function get_wanted_contact(p_wanted uuid)
 returns text language plpgsql security definer set search_path = public as $$
-declare a wanted_ads; w text;
+declare
+  a wanted_ads;
+  w text;
 begin
   if auth.uid() is null then raise exception 'Login required'; end if;
   if not is_active_user() then raise exception 'Account suspended'; end if;
