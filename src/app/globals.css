@@ -60,3 +60,24 @@ body { font-feature-settings: "cv11", "ss01"; -webkit-font-smoothing: antialiase
 
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ---------- motion ---------- */
+@keyframes page-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.page-enter { animation: page-enter 0.28s ease-out both; }
+
+@layer base {
+  a, button, summary, select, input, textarea { transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s, opacity .15s, transform .12s; }
+  button:not(:disabled), summary, select, label[for], [role="tab"] { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+  /* tactile press feedback on anything that looks like a button */
+  :is(a, button)[class*="rounded-"]:active:not(:disabled) { transform: scale(0.97); }
+  html { scroll-behavior: smooth; }
+  body { transition: background-color .25s, color .25s; }
+}
+
+@keyframes shimmer { 0% { opacity: .55; } 50% { opacity: 1; } 100% { opacity: .55; } }
+.animate-pulse { animation: shimmer 1.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}

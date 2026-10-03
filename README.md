@@ -18,6 +18,7 @@ The app name lives in one place: `src/config/site.ts` (`APP_NAME`).
    - `supabase/migrations/20260101000400_events_privacy.sql`
    - `supabase/migrations/20260101000500_wanted_matching.sql`
    - `supabase/migrations/20260101000600_public_names.sql`
+   - `supabase/migrations/20260101000700_receipts.sql`
    - `supabase/seed.sql` (3 campuses + categories)
    - Shortcut: paste `supabase/setup-all.sql` (all of the above) into the SQL Editor and run once.
 4. Supabase dashboard → Authentication:
@@ -42,4 +43,13 @@ The app name lives in one place: `src/config/site.ts` (`APP_NAME`).
 - [x] 3. Seller profile, listings (goods + services), image upload, seller dashboard
 - [x] 4. Public feed, search and filters, listing detail, WhatsApp contact, view tracking; optional password login
 - [x] 5. Wanted ads, match alerts (in-app + email), notification bell
-- [ ] 6–9. See project brief
+- [x] 6. Receipts: numbered, immutable, void with reason, PDF, WhatsApp share, public verification, My purchases
+- [ ] 7–9. See project brief
+
+## Testing on your phone
+Run `npm run dev -- -H 0.0.0.0`, then open `http://<your-computer-ip>:3000` on a phone on the same Wi-Fi.
+`next.config.ts` already allows private-network origins in development; restart the dev server after pulling.
+
+## Demo data
+`npm run seed:demo` adds sellers, ~36 listings (spread over every campus) and wanted ads. `npm run seed:clear` removes them.
+The feed defaults to your own campus; use Filters, then Campus, then All campuses to see everything.

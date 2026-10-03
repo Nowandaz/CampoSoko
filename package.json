@@ -10,7 +10,8 @@
     "seed:demo": "tsx scripts/seed-demo.ts",
     "typecheck": "tsc --noEmit",
     "emails:build": "tsx scripts/build-email-templates.ts",
-    "smtp:test": "tsx scripts/smtp-test.ts"
+    "smtp:test": "tsx scripts/smtp-test.ts",
+    "seed:clear": "tsx scripts/seed-demo.ts clear"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",
@@ -19,6 +20,7 @@
     "isomorphic-dompurify": "^3.19.0",
     "next": "16.3.8",
     "nodemailer": "^10.0.13",
+    "qrcode": "^1.5.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
@@ -28,6 +30,7 @@
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.2",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv": "^18.0.5",

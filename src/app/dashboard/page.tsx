@@ -43,6 +43,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
           <p className="mt-1 text-sm text-muted-foreground">Manage your listings and see how they perform.</p>
         </div>
         <div className="flex gap-2">
+          <Link href="/receipts" className={small}>Receipts</Link>
           <Link href="/sell/profile" className={small}>Seller profile</Link>
           <Link href="/sell" className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary-hover">New listing</Link>
         </div>
@@ -97,6 +98,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                         <form action={markSold}><input type="hidden" name="id" value={l.id} />
                           <ConfirmButton message="Mark this listing as sold?" className={small}>{l.type === "goods" ? "Mark sold" : "Mark done"}</ConfirmButton></form>
                       )}
+                      {(l.status === "active" || l.status === "sold") && <Link href={`/receipts/new?listing=${l.id}`} className={small}>Issue receipt</Link>}
                       {canRenew && (
                         <form action={renewListing}><input type="hidden" name="id" value={l.id} /><button className={small}>Renew 30 days</button></form>
                       )}
