@@ -31,6 +31,8 @@ export async function createReceipt(_: ReceiptState, fd: FormData): Promise<Rece
   const row = Array.isArray(data) ? data[0] : data;
   if (error || !row) {
     const m = error?.message ?? "";
+    console.error("[receipts] create_receipt failed:", error?.code, m);
+    if (error?.code === "PGRST202" || /schema cache|does not exist/i.test(m)) return { error: "Receipts aren't set up on the database yet. Run the receipts SQL migration (8-receipts.sql) in Supabase." };
     if (/in stock/i.test(m)) return { error: m.replace(/^.*(Only \d+ in stock).*$/i, "$1") + ". Lower the quantity or update the listing." };
     if (/daily receipt limit/i.test(m)) return { error: "You've reached today's limit of 50 receipts." };
     return { error: "Could not issue the receipt. Please check the details and try again." };
