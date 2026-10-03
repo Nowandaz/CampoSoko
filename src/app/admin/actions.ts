@@ -223,3 +223,37 @@ export async function adminVoidReceipt(_: AState, fd: FormData): Promise<AState>
   revalidatePath("/admin/receipts");
   return { notice: "Voided" };
 }
+
+// ---------- content flags ----------
+async function loadFlag(fd: FormData) {
+  const ctx = await requireAdmin();
+  const { data: f } = await ctx.sb.from("content_flags").select("id, target_type, target_id, user_id").eq("id", id(fd)).single();
+  if (!f) throw new Error("Flag not found");
+  return { ...ctx, f };
+}
+
+export async function dismissFlag(fd: FormData) {
+  const { me, sb, f } = await loadFlag(fd);
+  await sb.from("content_flags").update({ status: "dismissed" }).eq("id", f.id);
+  await audit(sb, me.id, "dismiss_flag", "flag", f.id);
+  revalidatePath("/admin/flags");
+}
+
+export async function removeFlagged(fd: FormData) {
+  const { me, sb, f } = await loadFlag(fd);
+  if (f.target_type === "listing") await sb.from("listings").update({ status: "removed" }).eq("id", f.target_id);
+  if (f.target_type === "wanted") await sb.from("wanted_ads").update({ status: "removed" }).eq("id", f.target_id);
+  await sb.from("content_flags").update({ status: "actioned" }).eq("id", f.id);
+  await audit(sb, me.id, "remove_flagged_content", f.target_type, f.target_id, { flag: f.id });
+  revalidatePath("/admin/flags");
+}
+
+export async function suspendFlagged(fd: FormData) {
+  const { me, sb, f } = await loadFlag(fd);
+  if (f.user_id && f.user_id !== me.id) {
+    await sb.from("profiles").update({ suspended: true }).eq("id", f.user_id);
+    await audit(sb, me.id, "suspend_user", "user", f.user_id, { flag: f.id });
+  }
+  await sb.from("content_flags").update({ status: "actioned" }).eq("id", f.id);
+  revalidatePath("/admin/flags");
+}

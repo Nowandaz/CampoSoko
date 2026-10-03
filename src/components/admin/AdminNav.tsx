@@ -4,10 +4,10 @@ import { usePathname } from "next/navigation";
 
 const items = [
   ["/admin", "Overview"], ["/admin/listings", "Listings"], ["/admin/wanted", "Wanted"], ["/admin/users", "Users"],
-  ["/admin/reports", "Reports"], ["/admin/receipts", "Receipts"], ["/admin/campuses", "Campuses"], ["/admin/categories", "Categories"], ["/admin/audit", "Audit log"],
+  ["/admin/reports", "Reports"], ["/admin/flags", "Flags"], ["/admin/receipts", "Receipts"], ["/admin/campuses", "Campuses"], ["/admin/categories", "Categories"], ["/admin/audit", "Audit log"],
 ] as const;
 
-export function AdminNav({ openReports }: { openReports: number }) {
+export function AdminNav({ openReports, openFlags = 0 }: { openReports: number; openFlags?: number }) {
   const path = usePathname();
   return (
     <nav aria-label="Admin" className="no-scrollbar -mx-4 mb-8 flex gap-2 overflow-x-auto px-4 pb-1">
@@ -17,6 +17,7 @@ export function AdminNav({ openReports }: { openReports: number }) {
           <Link key={href} href={href} aria-current={active ? "page" : undefined}
             className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-medium ${active ? "bg-primary-soft text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
             {label}
+            {href === "/admin/flags" && openFlags > 0 && <span className="rounded-full bg-primary px-1.5 text-[11px] font-bold leading-5 text-primary-foreground">{openFlags}</span>}
             {href === "/admin/reports" && openReports > 0 && <span className="rounded-full bg-danger px-1.5 text-[11px] font-bold leading-5 text-white">{openReports}</span>}
           </Link>
         );

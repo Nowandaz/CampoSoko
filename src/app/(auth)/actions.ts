@@ -6,6 +6,7 @@ import { allow, clientIp } from "@/lib/rate-limit";
 import { emailSchema, otpSchema, signupSchema, profileSchema, newPasswordSchema, safeNext, firstError } from "@/lib/validation";
 import { requireMe } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { checkText } from "@/lib/guard";
 
 export type FormState = { error?: string; step?: "code"; email?: string; notice?: string };
 
@@ -92,6 +93,7 @@ export async function updateProfile(_: FormState, fd: FormData): Promise<FormSta
   const me = await requireMe("/account");
   const parsed = profileSchema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { error: firstError(parsed.error) };
+  if (checkText([parsed.data.display_name, parsed.data.full_name]).error) return { error: "That name isn't allowed. Please choose another." };
   const sb = await createClient();
   const { error } = await sb.from("profiles").update(parsed.data).eq("id", me.id);
   if (error) return { error: "Could not save your changes" };

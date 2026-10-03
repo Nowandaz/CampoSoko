@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireMe } from "@/lib/auth";
 import { listingSchema, sellerProfileSchema, firstError } from "@/lib/validation";
 import { MAX_IMAGES } from "@/config/site";
+import { checkPostingLimits, checkText, recordFlag } from "@/lib/guard";
 
 export type SellState = { error?: string; notice?: string };
 
@@ -35,6 +36,8 @@ export async function saveSellerProfile(_: SellState, fd: FormData): Promise<Sel
     tags: fd.getAll("tags").map(String),
   });
   if (!parsed.success) return { error: firstError(parsed.error) };
+  const guard = checkText([parsed.data.shop_name, parsed.data.description, parsed.data.location, ...parsed.data.tags]);
+  if (guard.error) return { error: guard.error };
   const sb = await createClient();
   const { avatar_url, ...rest } = parsed.data;
   let { error } = await sb.from("seller_profiles").upsert({ user_id: me.id, ...rest, avatar_url: avatar_url || null });
@@ -44,6 +47,7 @@ export async function saveSellerProfile(_: SellState, fd: FormData): Promise<Sel
     ({ error } = await sb.from("seller_profiles").upsert({ user_id: me.id, ...withoutTags, avatar_url: avatar_url || null }));
   }
   if (error) return { error: "Could not save your seller profile." };
+  await recordFlag(guard.verdict, { targetType: "seller_profile", targetId: me.id, userId: me.id, excerpt: `${parsed.data.shop_name}: ${parsed.data.description}` });
   revalidatePath("/dashboard");
   redirect(String(fd.get("next") ?? "").startsWith("/") ? String(fd.get("next")) : "/sell/new");
 }
@@ -55,8 +59,12 @@ export async function createListing(_: SellState, fd: FormData): Promise<SellSta
   if (!parsed.success) return { error: firstError(parsed.error) };
   const images = ownImages(fd.getAll("images"), "listing-images", me.id).slice(0, MAX_IMAGES);
   const v = parsed.data;
+  const guard = checkText([v.title, v.description, v.location, v.delivery_time]);
+  if (guard.error) return { error: guard.error };
 
   const sb = await createClient();
+  const limit = await checkPostingLimits(sb, me.id, v.title);
+  if (limit) return { error: limit };
   const { data: cat } = await sb.from("categories").select("applies_to").eq("id", v.category_id).eq("active", true).single();
   if (!cat || (cat.applies_to !== "both" && cat.applies_to !== v.type)) return { error: "Choose a category that matches the listing type" };
 
@@ -72,6 +80,7 @@ export async function createListing(_: SellState, fd: FormData): Promise<SellSta
   if (images.length) {
     await sb.from("listing_images").insert(images.map((url, position) => ({ listing_id: listing.id, url, position })));
   }
+  await recordFlag(guard.verdict, { targetType: "listing", targetId: listing.id, userId: me.id, excerpt: `${v.title}: ${v.description}` });
   // Alert buyers whose wanted ads match; runs after the response so posting stays fast.
   after(() => notifyWantedMatches(listing.id).catch((e) => console.error("[matching] failed:", e)));
   revalidatePath("/dashboard");
@@ -85,6 +94,8 @@ export async function updateListing(_: SellState, fd: FormData): Promise<SellSta
   if (!parsed.success) return { error: firstError(parsed.error) };
   const v = parsed.data;
   const images = ownImages(fd.getAll("images"), "listing-images", me.id).slice(0, MAX_IMAGES);
+  const guard = checkText([v.title, v.description, v.location, v.delivery_time]);
+  if (guard.error) return { error: guard.error };
 
   const sb = await createClient();
   const { error } = await sb.from("listings").update({
@@ -95,6 +106,7 @@ export async function updateListing(_: SellState, fd: FormData): Promise<SellSta
   }).eq("id", id).eq("seller_id", me.id);
   if (error) return { error: friendly(error.message) };
 
+  await recordFlag(guard.verdict, { targetType: "listing", targetId: id, userId: me.id, excerpt: `${v.title}: ${v.description}` });
   const { data: old } = await sb.from("listing_images").select("url").eq("listing_id", id);
   await sb.from("listing_images").delete().eq("listing_id", id);
   if (images.length) await sb.from("listing_images").insert(images.map((url, position) => ({ listing_id: id, url, position })));

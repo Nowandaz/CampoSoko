@@ -2,6 +2,7 @@
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { notifySellersOfWanted } from "@/lib/matching";
+import { checkText, recordFlag } from "@/lib/guard";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -17,6 +18,8 @@ export async function createWanted(_: WantedState, fd: FormData): Promise<Wanted
   if (me.suspended) return { error: "Your account is suspended." };
   const parsed = wantedSchema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { error: firstError(parsed.error) };
+  const guard = checkText([parsed.data.title, parsed.data.description, ...parsed.data.keywords]);
+  if (guard.error) return { error: guard.error };
   if (!(await allow(`wanted:${me.id}`, 10, 86400))) return { error: "You've reached today's limit of 10 wanted ads." };
   const v = parsed.data;
   const sb = await createClient();
@@ -27,6 +30,7 @@ export async function createWanted(_: WantedState, fd: FormData): Promise<Wanted
     category_id: v.category_id, budget: v.budget ?? null, keywords: v.keywords, notify: v.notify,
   }).select("id").single();
   if (error || !created) return { error: "Could not post your ad. Please try again." };
+  await recordFlag(guard.verdict, { targetType: "wanted", targetId: created.id, userId: me.id, excerpt: `${v.title}: ${v.description}` });
   after(() => notifySellersOfWanted(created.id).catch((e) => console.error("[matching] sellers failed:", e)));
   revalidatePath("/dashboard");
   redirect(`/wanted/${created.id}?posted=1`);
