@@ -4,25 +4,26 @@ import { ThemeToggle } from "./ThemeToggle";
 import { getMe } from "@/lib/auth";
 import { logout } from "@/app/(auth)/actions";
 
-const pill = "rounded-full px-4 py-2 text-sm font-semibold";
+const ghost = "inline-flex h-10 items-center rounded-lg px-3.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground";
+const solid = "inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-hover";
 
 export async function Header() {
   const me = await getMe();
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+    <header className="sticky top-0 z-30 border-b border-border/80 bg-background/85 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
         <Logo />
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-1" aria-label="Main">
           {me ? (
             <>
-              {me.role === "admin" && <Link href="/admin" className={`${pill} hover:bg-muted`}>Admin</Link>}
-              <Link href="/account" className={`${pill} hover:bg-muted`}>{me.full_name.split(" ")[0]}</Link>
-              <form action={logout}><button className={`${pill} border border-border hover:bg-muted`}>Log out</button></form>
+              {me.role === "admin" && <Link href="/admin" className={ghost}>Admin</Link>}
+              <Link href="/account" className={ghost}>{me.full_name.split(" ")[0]}</Link>
+              <form action={logout}><button className={ghost}>Log out</button></form>
             </>
           ) : (
             <>
-              <Link href="/login" className={`${pill} hover:bg-muted`}>Log in</Link>
-              <Link href="/signup" className={`${pill} bg-primary text-primary-foreground hover:bg-primary-hover`}>Sign up</Link>
+              <Link href="/login" className={ghost}>Log in</Link>
+              <Link href="/signup" className={solid}>Sign up</Link>
             </>
           )}
           <ThemeToggle />

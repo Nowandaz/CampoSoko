@@ -1,5 +1,6 @@
 "use client";
 import { useSyncExternalStore } from "react";
+import { Moon, Sun } from "@/components/ui/icons";
 
 const root = () => document.documentElement;
 function subscribe(cb: () => void) {
@@ -17,8 +18,8 @@ export function ThemeToggle() {
   }
   return (
     <button onClick={toggle} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-      className="h-10 w-10 rounded-full border border-border grid place-items-center hover:bg-muted">
-      <span aria-hidden>{dark ? "☀️" : "🌙"}</span>
+      className="grid h-10 w-10 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+      {dark ? <Sun /> : <Moon />}
     </button>
   );
 }

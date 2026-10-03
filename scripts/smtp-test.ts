@@ -18,7 +18,7 @@ async function main() {
   await t.sendMail({
     from: process.env.SMTP_FROM, to, subject: "CampoSoko test email",
     text: "Test code: 123456",
-    html: renderEmail({ title: "Test", preheader: "Test", bodyHtml: otpBody("123456", "SMTP works 🎉", "This is a test of your CampoSoko email setup.") }),
+    html: renderEmail({ title: "Test", preheader: "Test", bodyHtml: otpBody("123456", "SMTP works", "This is a test of your CampoSoko email setup.") }),
   });
   console.log(`Test email sent to ${to}`);
 }

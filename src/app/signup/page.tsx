@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { SignupForm } from "@/components/auth/AuthForm";
+import { AuthShell } from "@/components/auth/AuthShell";
 import { getMe } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { safeNext } from "@/lib/validation";
@@ -12,10 +13,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
   const sb = await createClient();
   const { data } = await sb.from("campuses").select("id, name").eq("active", true).order("name");
   return (
-    <div className="mx-auto max-w-sm">
-      <h1 className="text-2xl font-extrabold">Join your campus soko</h1>
-      <p className="mb-6 mt-1 text-muted-foreground">Buy, sell and request things from students near you.</p>
+    <AuthShell title="Create your account" subtitle="Free for every student. We'll verify your email with a one-time code.">
       <SignupForm campuses={data ?? []} next={next} />
-    </div>
+    </AuthShell>
   );
 }

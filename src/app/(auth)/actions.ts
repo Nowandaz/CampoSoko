@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 
 export type FormState = { error?: string; step?: "code"; email?: string; notice?: string };
 
-const GENERIC_SENT = "If this email can be used, a verification code is on its way.";
+const GENERIC_SENT = "If this email can be used, a 6-digit code is on its way.";
 
 /** Logs the real cause server-side; shows users a helpful (non-sensitive) message. */
 function describeSendError(error: { message: string; status?: number; code?: string }) {
@@ -72,7 +72,7 @@ export async function requestLoginCode(_: FormState, fd: FormData): Promise<Form
 export async function verifyCode(_: FormState, fd: FormData): Promise<FormState> {
   const email = emailSchema.safeParse(fd.get("email"));
   const token = otpSchema.safeParse(fd.get("code"));
-  if (!email.success || !token.success) return { error: "Enter the code from your email", step: "code", email: String(fd.get("email") ?? "") };
+  if (!email.success || !token.success) return { error: "Enter the 6-digit code", step: "code", email: String(fd.get("email") ?? "") };
   if (!(await allow(`verify:${email.data}`, 10, 900)) || !(await allow(`verify:ip:${await clientIp()}`, 40, 900))) {
     return { error: "Too many wrong codes. Wait 15 minutes and request a new one.", step: "code", email: email.data };
   }

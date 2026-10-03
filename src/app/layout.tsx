@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { APP_NAME, APP_TAGLINE } from "@/config/site";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: `${APP_NAME} - ${APP_TAGLINE}`, template: `%s | ${APP_NAME}` },
@@ -15,11 +18,11 @@ const themeScript = `try{var t=localStorage.getItem('theme');if(t==='dark')docum
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
       <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
       <body className="min-h-dvh flex flex-col antialiased">
         <Header />
-        <main className="flex-1 mx-auto w-full max-w-5xl px-4 py-6">{children}</main>
+        <main className="flex-1 mx-auto w-full max-w-5xl px-4 py-8">{children}</main>
         <Footer />
       </body>
     </html>

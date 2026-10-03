@@ -21,7 +21,7 @@ export function renderEmail(opts: { title: string; preheader: string; bodyHtml: 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;padding:24px 12px"><tr><td align="center">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #fed7aa">
     <tr><td style="background:${ORANGE};padding:20px 28px">
-      <span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.3px">&#127890; ${escapeHtml(APP_NAME)}</span>
+      <span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.3px">Campo<span style="color:#ffedd5">Soko</span></span>
     </td></tr>
     <tr><td style="padding:28px 28px 8px;font-size:16px;line-height:1.6">${opts.bodyHtml}</td></tr>
     <tr><td style="padding:16px 28px 28px;font-size:12px;line-height:1.5;color:#78716c;border-top:1px solid #f5f5f4">
