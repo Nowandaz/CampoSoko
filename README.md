@@ -28,6 +28,7 @@ The app name lives in one constant: `src/config/site.ts` (`APP_NAME`).
    | 9 | `9-admin.sql` | Admin dashboard statistics |
    | 10 | `10-shops-reviews-tags.sql` | Seller tags, shops, thumbs reviews |
    | 11 | `11-content-flags.sql` | Automatic content flags for admin review |
+   | 12 | `12-ai-and-review.sql` | AI providers and settings, manual photo-review queue |
 
    The same SQL is in `supabase/migrations/` (for the Supabase CLI: `supabase db push`). `supabase/setup-all.sql`
    is everything in one file for a brand-new project.
@@ -70,6 +71,15 @@ Run `npm run dev -- -H 0.0.0.0` and open `http://<your-computer-ip>:3000` on a p
 - Admin (`/admin`): stats and charts, listings, wanted ads, users, reports, receipts, campuses, categories, flags,
   audit log, CSV export.
 - Posting guard rails: prohibited-content rules, new-account limits, duplicate blocking, and an admin flag queue.
+- Optional AI (Admin, AI): add several providers (OpenRouter, Groq, OpenAI, Gemini, Anthropic) with weights and failover.
+  An hourly pass checks new posts for banned content (text only, photos are never sent) and finds extra buyer/seller matches.
+  Sellers get a shop-writing helper, buyers get "Smart search". Photos are reviewed manually: admins get a bell alert.
+
+## 3b. The hourly AI pass
+Vercel's free plan only runs a cron once a day, so the hourly AI job is triggered by a free GitHub Action
+(`.github/workflows/hourly.yml`). In your GitHub repo add two secrets (Settings, Secrets and variables, Actions):
+`SITE_URL` (your production URL) and `CRON_SECRET` (same value as in Vercel). You can also run it by hand from
+Admin, AI, "Run AI check now". Per-run and per-day call limits are in the same page.
 
 ## 4. Security notes
 
@@ -85,7 +95,7 @@ Run `npm run dev -- -H 0.0.0.0` and open `http://<your-computer-ip>:3000` on a p
 
 ## 5. Scripts
 
-`npm run dev` · `build` · `start` · `lint` · `typecheck` · `test` · `seed:demo` · `seed:clear` · `emails:build` · `smtp:test`
+`npm run dev` · `build` · `start` · `lint` · `typecheck` · `test` (16 checks) · `seed:demo` · `seed:clear` · `emails:build` · `smtp:test`
 
 ## 6. Becoming an admin, and promoting others
 Run the SQL in step 8 once. Admins can then promote or demote others at `/admin/users`.

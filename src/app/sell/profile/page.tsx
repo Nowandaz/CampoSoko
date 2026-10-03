@@ -1,5 +1,6 @@
 import { requireMe } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { aiFeatureOn } from "@/lib/ai/client";
 import { SellerProfileForm } from "@/components/sell/SellerProfileForm";
 
 export const metadata = { title: "Seller profile" };
@@ -21,7 +22,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
         {data ? "Buyers see this on your listings." : "A quick one-time step before you post. Buyers see this on your listings."}
       </p>
       <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-        <SellerProfileForm userId={me.id} initial={data ?? undefined} next={next?.startsWith("/") ? next : data ? "/dashboard" : "/sell/new"} />
+        <SellerProfileForm aiHelper={await aiFeatureOn("ai_shop_helper")} userId={me.id} initial={data ?? undefined} next={next?.startsWith("/") ? next : data ? "/dashboard" : "/sell/new"} />
       </section>
     </div>
   );

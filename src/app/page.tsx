@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { parseFeedParams } from "@/lib/feed";
 import { Feed } from "@/components/feed/Feed";
 import { FeedFilters } from "@/components/feed/FeedFilters";
+import { aiFeatureOn } from "@/lib/ai/client";
 import { GridSkeleton } from "@/components/feed/ListingCard";
 
 export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -16,6 +17,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
     sb.from("campuses").select("id, name").eq("active", true).order("name"),
     sb.from("categories").select("id, name, slug, applies_to").eq("active", true).order("sort_order"),
   ]);
+  const aiSearch = await aiFeatureOn("ai_search");
   const myCampus = campuses?.find((c) => c.id === me?.campus_id)?.name;
   const cats = categories ?? [];
   return (
@@ -37,7 +39,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
           </div>
         )}
       </section>
-      <FeedFilters p={p} campuses={campuses ?? []} categories={cats} myCampus={me?.campus_id} />
+      <FeedFilters p={p} campuses={campuses ?? []} categories={cats} myCampus={me?.campus_id} aiSearch={aiSearch} />
       <Suspense key={JSON.stringify(p)} fallback={<GridSkeleton />}>
         <Feed p={p} cats={cats} userId={me?.id} />
       </Suspense>

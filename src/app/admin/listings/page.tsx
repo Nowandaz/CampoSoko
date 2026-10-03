@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { likeSafe, PAGE, requireAdmin } from "@/lib/admin";
 import { DownloadLink, Badge, dangerBtn, PageTitle, Pager, selectCls, smallBtn, Table, td, th } from "@/components/admin/ui";
-import { setListingStatus, toggleFeatured } from "@/app/admin/actions";
+import { markPhotosReviewed, setListingStatus, toggleFeatured } from "@/app/admin/actions";
 import { kes, timeAgo } from "@/lib/format";
 import { inputCls } from "@/components/ui/form";
 
@@ -13,9 +13,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
   const page = Math.max(1, Number(sp.page) || 1);
   const [{ data: campuses }] = await Promise.all([sb.from("campuses").select("id, name").order("name")]);
   let q = sb.from("listings")
-    .select("id, title, type, price, status, featured, created_at, expires_at, profiles(full_name, email), campuses(name)", { count: "exact" });
+    .select("id, title, type, price, status, featured, created_at, expires_at, photos_reviewed, profiles(full_name, email), campuses(name)", { count: "exact" });
   if (sp.q && likeSafe(sp.q)) q = q.ilike("title", `%${likeSafe(sp.q)}%`);
   if (sp.status && ["active", "sold", "expired", "removed"].includes(sp.status)) q = q.eq("status", sp.status);
+  if (sp.photos === "pending") {
+    const { data: pend } = await sb.from("listings").select("id, listing_images!inner(id)").eq("photos_reviewed", false).eq("status", "active").limit(500);
+    q = q.in("id", (pend ?? []).length ? (pend ?? []).map((x) => x.id) : ["00000000-0000-0000-0000-000000000000"]);
+  }
   if (sp.type === "goods" || sp.type === "service") q = q.eq("type", sp.type);
   if (sp.campus && /^[0-9a-f-]{36}$/.test(sp.campus)) q = q.eq("campus_id", sp.campus);
   const { data, count } = await q.order("created_at", { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1);
@@ -37,6 +41,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
         <select name="status" defaultValue={sp.status ?? ""} className={selectCls}><option value="">Any status</option>{["active", "sold", "expired", "removed"].map((s) => <option key={s} value={s}>{s}</option>)}</select>
         <select name="type" defaultValue={sp.type ?? ""} className={selectCls}><option value="">Goods and services</option><option value="goods">Goods</option><option value="service">Services</option></select>
         <select name="campus" defaultValue={sp.campus ?? ""} className={selectCls}><option value="">All campuses</option>{(campuses ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
+        <select name="photos" defaultValue={sp.photos ?? ""} className={selectCls}><option value="">Any photos</option><option value="pending">Photos to review</option></select>
         <button className={smallBtn}>Filter</button>
       </form>
       <Table min="60rem">
@@ -52,12 +57,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
                   <div className="text-xs text-muted-foreground">{l.type === "goods" ? "Goods" : "Service"} · {kes(l.price)} · {(l.campuses as unknown as { name: string } | null)?.name} · {timeAgo(l.created_at)}</div>
                 </td>
                 <td className={td}>{seller?.full_name}<div className="text-xs text-muted-foreground">{seller?.email}</div></td>
-                <td className={td}><Badge tone={tone[l.status as keyof typeof tone]}>{l.status}</Badge>{l.featured && <span className="ml-1"><Badge tone="orange">featured</Badge></span>}</td>
+                <td className={td}><Badge tone={tone[l.status as keyof typeof tone]}>{l.status}</Badge>{!l.photos_reviewed && l.status === "active" && <span className="ml-1"><Badge tone="orange">photos to review</Badge></span>}{l.featured && <span className="ml-1"><Badge tone="orange">featured</Badge></span>}</td>
                 <td className={`${td} tabular-nums`}>{Number(s?.views ?? 0)}</td>
                 <td className={`${td} tabular-nums`}>{Number(s?.clicks ?? 0)}</td>
                 <td className={`${td} tabular-nums`}>{Number(s?.reports ?? 0) > 0 ? <Badge tone="red">{Number(s?.reports)}</Badge> : 0}</td>
                 <td className={td}>
                   <div className="flex flex-wrap gap-1.5">
+                    {!l.photos_reviewed && l.status === "active" && <form action={markPhotosReviewed}><input type="hidden" name="id" value={l.id} /><button className={smallBtn}>Photos OK</button></form>}
                     <Link href={`/admin/listings/${l.id}/edit`} className={smallBtn}>Edit</Link>
                     <form action={toggleFeatured}><input type="hidden" name="id" value={l.id} /><input type="hidden" name="featured" value={String(!l.featured)} /><button className={smallBtn}>{l.featured ? "Unfeature" : "Feature"}</button></form>
                     {l.status === "removed"

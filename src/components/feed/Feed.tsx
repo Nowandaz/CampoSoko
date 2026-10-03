@@ -8,6 +8,10 @@ import { WantedCard } from "./WantedCard";
 import { HScroll } from "./HScroll";
 import { CategoryIcon } from "@/components/ui/category-icons";
 import { shopDirectory } from "@/lib/shops";
+import { ask, aiFeatureOn } from "@/lib/ai/client";
+import { parseSearch } from "@/lib/ai/tasks";
+import { allow, clientIp } from "@/lib/rate-limit";
+import { kes } from "@/lib/format";
 import { ShopCard } from "@/components/shop/ShopCard";
 
 function Empty({ title, text, href, cta }: { title: string; text: string; href?: string; cta?: string }) {
@@ -23,6 +27,7 @@ function Empty({ title, text, href, cta }: { title: string; text: string; href?:
 function pageHref(p: FeedParams, n: number) {
   const sp = new URLSearchParams({ tab: p.tab, page: String(n), campus: p.campusId ?? "all" });
   if (p.q) sp.set("q", p.q);
+  if (p.ai) sp.set("ai", p.ai);
   if (p.category) sp.set("category", p.category);
   if (p.min != null) sp.set("min", String(p.min));
   if (p.max != null) sp.set("max", String(p.max));
@@ -56,14 +61,34 @@ function RowHeader({ title, slug, href }: { title: string; slug?: string; href?:
 
 const catHref = (p: FeedParams, id: string) => `/?tab=${p.tab}&category=${id}&campus=${p.campusId ?? "all"}`;
 
-export async function Feed({ p, cats, userId }: { p: FeedParams; cats: Cat[]; userId?: string }) {
+export async function Feed({ p: input, cats, userId }: { p: FeedParams; cats: Cat[]; userId?: string }) {
   const sb = await createClient();
-  if (p.q) {
+  let p = input;
+  let aiNote: string | null = null;
+  if (p.ai === "1" && p.q) {
+    if (!(await aiFeatureOn("ai_search"))) aiNote = "Smart search isn't available right now, so we searched for your exact words.";
+    else if (!(await allow(`ai-search:${userId ?? (await clientIp())}`, 20, 3600))) aiNote = "Smart search limit reached for this hour, so we searched for your exact words.";
+    else {
+      try {
+        const r = await parseSearch(ask, p.q, cats);
+        const cat = r.category ? cats.find((c) => c.slug === r.category) : undefined;
+        const parts = [r.terms.join(", "), cat?.name, r.max != null ? `up to ${kes(r.max)}` : null, r.min != null ? `from ${kes(r.min)}` : null].filter(Boolean);
+        if (r.terms.length) {
+          p = { ...p, terms: r.terms, q: undefined, category: p.category ?? cat?.id, min: p.min ?? r.min ?? undefined, max: p.max ?? r.max ?? undefined };
+          aiNote = `Smart search understood: ${parts.join(" · ")}`;
+        }
+      } catch {
+        aiNote = "Smart search couldn't read that just now, so we searched for your exact words.";
+      }
+    }
+  }
+  const aiBanner = aiNote ? <p role="status" className="mb-4 rounded-lg bg-primary-soft px-3.5 py-2.5 text-sm text-foreground">{aiNote}</p> : null;
+  if (input.q) {
     after(async () => {
-      await createAdminClient().from("events").insert({ type: "search", user_id: userId ?? null, meta: p.q!.slice(0, 80) });
+      await createAdminClient().from("events").insert({ type: "search", user_id: userId ?? null, meta: input.q!.slice(0, 80) });
     });
   }
-  const browsing = !p.q && !p.category && p.min == null && p.max == null && p.page === 1;
+  const browsing = !p.q && !p.terms?.length && !p.category && p.min == null && p.max == null && p.page === 1;
   const catSlug = new Map(cats.map((c) => [c.id, c.slug]));
 
   // ---------- Wanted ----------
@@ -83,12 +108,13 @@ export async function Feed({ p, cats, userId }: { p: FeedParams; cats: Cat[]; us
       );
     }
     const { items, total } = await fetchWanted(sb, p);
-    if (!items.length) return <Empty title="No matches" text="Try a different search or clear some filters." href="/?tab=wanted" cta="Clear filters" />;
+    if (!items.length) return <>{aiBanner}<Empty title="No matches" text="Try a different search or clear some filters." href="/?tab=wanted" cta="Clear filters" /></>;
     return (
       <>
+        {aiBanner}
         <p className="mb-3 text-sm text-muted-foreground">{total} wanted {total === 1 ? "ad" : "ads"}</p>
         <div className="grid gap-3 sm:grid-cols-2">{items.map((w) => <WantedCard key={w.id} w={w} />)}</div>
-        <Pager p={p} total={total} />
+        <Pager p={input} total={total} />
       </>
     );
   }
@@ -121,15 +147,16 @@ export async function Feed({ p, cats, userId }: { p: FeedParams; cats: Cat[]; us
 
   const { items, total } = await fetchListings(sb, p);
   if (!items.length) {
-    return <Empty title="No matches" text="Try a different search, or clear some filters. You can also post what you're looking for in Wanted." href="/?tab=wanted" cta="See wanted ads" />;
+    return <>{aiBanner}<Empty title="No matches" text="Try a different search, or clear some filters. You can also post what you're looking for in Wanted." href="/?tab=wanted" cta="See wanted ads" /></>;
   }
   return (
     <>
+      {aiBanner}
       <p className="mb-3 text-sm text-muted-foreground">{total} {total === 1 ? "listing" : "listings"}</p>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {items.map((it) => <ListingCard key={it.id} item={it} slug={p.category ? catSlug.get(p.category) : undefined} />)}
       </div>
-      <Pager p={p} total={total} />
+      <Pager p={input} total={total} />
     </>
   );
 }

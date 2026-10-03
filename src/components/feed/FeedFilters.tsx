@@ -10,7 +10,7 @@ const tabs: { key: Tab; label: string }[] = [
   { key: "wanted", label: "Wanted" },
 ];
 
-export function FeedFilters({ p, campuses, categories, myCampus }: { p: FeedParams; campuses: Opt[]; categories: Cat[]; myCampus?: string }) {
+export function FeedFilters({ p, campuses, categories, myCampus, aiSearch = false }: { p: FeedParams; campuses: Opt[]; categories: Cat[]; myCampus?: string; aiSearch?: boolean }) {
   const cats = categories.filter((c) => p.tab === "wanted" || c.applies_to === "both" || c.applies_to === (p.tab === "services" ? "service" : "goods"));
   const campusValue = p.campusId ?? "all";
   const tabHref = (tab: Tab) => {
@@ -36,6 +36,12 @@ export function FeedFilters({ p, campuses, categories, myCampus }: { p: FeedPara
             className={`${inputCls} h-14 rounded-xl border-2 pl-12 pr-28 text-base shadow-sm`} />
           <button className="absolute right-2 top-2 h-10 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary-hover">Search</button>
         </div>
+        {aiSearch && (
+          <label className="flex min-h-10 cursor-pointer items-center gap-2.5 text-sm text-muted-foreground">
+            <input type="checkbox" name="ai" value="1" defaultChecked={p.ai === "1"} className="h-5 w-5 accent-[var(--primary)]" />
+            <span><b className="font-medium text-foreground">Smart search</b> · describe it in your own words, like “cheap laptop for coding under 25k”</span>
+          </label>
+        )}
         <details open={hasFilters} className="group rounded-lg border border-border bg-card">
           <summary className="flex h-11 cursor-pointer select-none list-none items-center justify-between px-3.5 text-sm font-medium [&::-webkit-details-marker]:hidden">Filters{hasFilters ? " (active)" : ""}<CategoryIcon slug="right" className="h-4 w-4 transition-transform group-open:rotate-90" /></summary>
           <div className="grid gap-3 border-t border-border p-3.5 sm:grid-cols-4">

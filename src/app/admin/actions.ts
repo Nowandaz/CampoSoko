@@ -22,6 +22,14 @@ export async function setListingStatus(fd: FormData) {
   revalidatePath("/admin/listings");
 }
 
+export async function markPhotosReviewed(fd: FormData) {
+  const { me, sb } = await requireAdmin();
+  const lid = id(fd);
+  await sb.from("listings").update({ photos_reviewed: true }).eq("id", lid);
+  await audit(sb, me.id, "photos_ok", "listing", lid);
+  revalidatePath("/admin/listings");
+}
+
 export async function toggleFeatured(fd: FormData) {
   const { me, sb } = await requireAdmin();
   const lid = id(fd);

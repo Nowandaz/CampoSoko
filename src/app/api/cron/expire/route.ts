@@ -1,22 +1,14 @@
-import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
+import { cronAuthorised } from "@/lib/cron";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
 import { expiryEmail } from "@/lib/email/templates";
 
 export const dynamic = "force-dynamic";
 
-function authorised(req: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret || secret.length < 16) return false;
-  const given = req.headers.get("authorization") ?? "";
-  const want = `Bearer ${secret}`;
-  return given.length === want.length && timingSafeEqual(Buffer.from(given), Buffer.from(want));
-}
-
 /** Daily job: expire old listings and remind sellers 3 days before. Vercel Cron sends the Bearer secret. */
 export async function GET(req: Request) {
-  if (!authorised(req)) return new NextResponse("Unauthorized", { status: 401 });
+  if (!cronAuthorised(req)) return new NextResponse("Unauthorized", { status: 401 });
   const admin = createAdminClient();
 
   const { data: expired } = await admin.rpc("expire_listings");

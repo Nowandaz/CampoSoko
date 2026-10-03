@@ -12,7 +12,7 @@
     "emails:build": "tsx scripts/build-email-templates.ts",
     "smtp:test": "tsx scripts/smtp-test.ts",
     "seed:clear": "tsx scripts/seed-demo.ts clear",
-    "test": "tsx --test src/lib/moderation.test.ts src/lib/validation.test.ts"
+    "test": "tsx --test src/lib/moderation.test.ts src/lib/validation.test.ts src/lib/ai/tasks.test.ts"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",

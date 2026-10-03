@@ -14,8 +14,9 @@ const schema = z.object({
   max: num.catch(undefined),
   campus: z.string().optional().catch(undefined),
   page: z.coerce.number().int().min(1).max(500).catch(1),
+  ai: z.string().optional().catch(undefined),
 });
-export type FeedParams = z.infer<typeof schema> & { campusId?: string };
+export type FeedParams = z.infer<typeof schema> & { campusId?: string; terms?: string[] };
 
 export function parseFeedParams(raw: Record<string, string | string[] | undefined>, myCampus?: string): FeedParams {
   const flat = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]));
@@ -58,6 +59,8 @@ export async function fetchListings(sb: SupabaseClient, p: FeedParams) {
   if (p.max != null) q = q.lte("price", p.max);
   const term = p.q ? likeSafe(p.q) : "";
   if (term) q = q.or(`title.ilike.%${term}%,description.ilike.%${term}%`);
+  const tl = (p.terms ?? []).map(likeSafe).filter((t) => t.length > 1);
+  if (tl.length) q = q.or(tl.flatMap((t) => [`title.ilike.%${t}%`, `description.ilike.%${t}%`]).join(","));
   const from = (p.page - 1) * PAGE_SIZE;
   const { data, count } = await q.order("featured", { ascending: false }).order("created_at", { ascending: false }).range(from, from + PAGE_SIZE - 1);
 
@@ -80,6 +83,8 @@ export async function fetchWanted(sb: SupabaseClient, p: FeedParams) {
   if (p.max != null) q = q.lte("budget", p.max);
   const term = p.q ? likeSafe(p.q) : "";
   if (term) q = q.or(`title.ilike.%${term}%,description.ilike.%${term}%`);
+  const tl = (p.terms ?? []).map(likeSafe).filter((t) => t.length > 1);
+  if (tl.length) q = q.or(tl.flatMap((t) => [`title.ilike.%${t}%`, `description.ilike.%${t}%`]).join(","));
   const from = (p.page - 1) * PAGE_SIZE;
   const { data, count } = await q.order("created_at", { ascending: false }).range(from, from + PAGE_SIZE - 1);
   const ids = [...new Set((data ?? []).map((w) => w.user_id))];

@@ -3,8 +3,13 @@ import { useState } from "react";
 import { X } from "@/components/ui/icons";
 import { inputCls } from "@/components/ui/form";
 
-export function TagInput({ name, initial = [], max = 12 }: { name: string; initial?: string[]; max?: number }) {
-  const [tags, setTags] = useState<string[]>(initial);
+export function TagInput({ name, initial = [], max = 12, value, onChange }: { name: string; initial?: string[]; max?: number; value?: string[]; onChange?: (t: string[]) => void }) {
+  const [inner, setInner] = useState<string[]>(initial);
+  const tags = value ?? inner;
+  const setTags = (f: string[] | ((p: string[]) => string[])) => {
+    const next = typeof f === "function" ? f(tags) : f;
+    if (onChange) onChange(next); else setInner(next);
+  };
   const [draft, setDraft] = useState("");
   function add(raw: string) {
     const parts = raw.split(",").map((t) => t.trim().toLowerCase()).filter((t) => t.length >= 2 && t.length <= 30);
