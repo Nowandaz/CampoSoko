@@ -97,7 +97,7 @@ export async function checkListingNow(id: string) {
     if (still?.status === "active") await matchForListing(c, l as ListingRow);
     await c.admin.from("listings").update({ ai_checked: true }).eq("id", id);
   } catch (e) {
-    console.error("[ai] post check left for the manual "Check waiting posts now" button:", e instanceof AiUnavailable ? e.message : e);
+    console.error("[ai] post check left for the manual check button:", e instanceof AiUnavailable ? e.message : e);
   }
 }
 
@@ -112,7 +112,7 @@ export async function checkWantedNow(id: string) {
     await matchForWanted(c, w as WantedRow);
     await c.admin.from("wanted_ads").update({ ai_checked: true }).eq("id", id);
   } catch (e) {
-    console.error("[ai] wanted check left for the manual "Check waiting posts now" button:", e instanceof AiUnavailable ? e.message : e);
+    console.error("[ai] wanted check left for the manual check button:", e instanceof AiUnavailable ? e.message : e);
   }
 }
 
