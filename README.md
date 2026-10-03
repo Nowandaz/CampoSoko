@@ -17,6 +17,7 @@ The app name lives in one place: `src/config/site.ts` (`APP_NAME`).
    - `supabase/migrations/20260101000300_seller_stats.sql`
    - `supabase/migrations/20260101000400_events_privacy.sql`
    - `supabase/migrations/20260101000500_wanted_matching.sql`
+   - `supabase/migrations/20260101000600_public_names.sql`
    - `supabase/seed.sql` (3 campuses + categories)
    - Shortcut: paste `supabase/setup-all.sql` (all of the above) into the SQL Editor and run once.
 4. Supabase dashboard → Authentication:

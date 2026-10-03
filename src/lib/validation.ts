@@ -30,6 +30,8 @@ export const signupSchema = z.object({
 export const profileSchema = z.object({
   full_name: z.string().trim().min(2).max(80),
   whatsapp: whatsappSchema,
+  display_name: z.string().trim().max(30, "Public name is too long").transform((v) => v.replace(/[\u0000-\u001F\u007F]|<[^>]*>/g, "").trim())
+    .refine((v) => v === "" || v.length >= 2, "Public name must be at least 2 characters").transform((v) => v || null),
 });
 
 /** Only allow same-site relative redirects. */

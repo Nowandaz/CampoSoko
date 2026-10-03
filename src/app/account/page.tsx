@@ -8,9 +8,15 @@ import { PasswordForm } from "@/components/auth/PasswordForm";
 
 export const metadata = { title: "My account" };
 
+function previewName(full: string) {
+  const parts = full.trim().split(/\s+/);
+  return parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.` : parts[0];
+}
+
 export default async function Page() {
   const me = await requireMe("/account");
   const sb = await createClient();
+  const { data: prof } = await sb.from("profiles").select("display_name").eq("id", me.id).maybeSingle();
   const { data: campus } = await sb.from("campuses").select("name").eq("id", me.campus_id).single();
   return (
     <div className="mx-auto max-w-md">
@@ -20,7 +26,7 @@ export default async function Page() {
         <dt className="text-muted-foreground">Campus</dt><dd className="font-medium">{campus?.name}</dd>
       </dl>
       {me.suspended && <div className="mb-4"><Notice error="Your account is suspended. You can't post or contact others." /></div>}
-      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm"><AccountForm name={me.full_name} whatsapp={me.whatsapp} /></section>
+      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm"><AccountForm name={me.full_name} whatsapp={me.whatsapp} displayName={prof?.display_name ?? ""} publicPreview={previewName(me.full_name)} /></section>
       <section id="password" className="mt-6 scroll-mt-20 rounded-2xl border border-border bg-card p-6 shadow-sm">
         <h2 className="text-lg font-semibold">Password</h2>
         <p className="mb-4 mt-1 text-sm text-muted-foreground">Change the password you use to log in.</p>

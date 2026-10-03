@@ -20,13 +20,13 @@ export async function createWanted(_: WantedState, fd: FormData): Promise<Wanted
   const sb = await createClient();
   const { data: cat } = await sb.from("categories").select("applies_to").eq("id", v.category_id).eq("active", true).single();
   if (!cat || (cat.applies_to !== "both" && cat.applies_to !== v.type)) return { error: "Choose a category that matches the type" };
-  const { error } = await sb.from("wanted_ads").insert({
+  const { data: created, error } = await sb.from("wanted_ads").insert({
     user_id: me.id, campus_id: me.campus_id, type: v.type, title: v.title, description: v.description,
     category_id: v.category_id, budget: v.budget ?? null, keywords: v.keywords, notify: v.notify,
-  });
-  if (error) return { error: "Could not post your ad. Please try again." };
+  }).select("id").single();
+  if (error || !created) return { error: "Could not post your ad. Please try again." };
   revalidatePath("/dashboard");
-  redirect("/dashboard?wanted=1");
+  redirect(`/wanted/${created.id}?posted=1`);
 }
 
 export async function closeWanted(fd: FormData) {

@@ -106,7 +106,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               {seller.avatar_url && <img src={seller.avatar_url} alt="" className="h-full w-full object-cover" />}
             </div>
             <div className="min-w-0">
-              <p className="font-semibold">{seller.shop_name ?? seller.full_name}</p>
+              <p className="font-semibold">{seller.shop_name ?? seller.public_name}</p>
               <p className="text-xs text-muted-foreground">{seller.shop_location} · Member since {new Date(seller.created_at).toLocaleDateString("en-KE", { month: "short", year: "numeric" })}</p>
               {seller.shop_description && <p className="mt-1.5 line-clamp-3 text-sm text-muted-foreground">{seller.shop_description}</p>}
             </div>
