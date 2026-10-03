@@ -40,3 +40,43 @@ export function safeNext(next: unknown): string {
 export function firstError(e: z.ZodError) {
   return e.issues[0]?.message ?? "Invalid input";
 }
+
+// ---------- text sanitising ----------
+/** Strips control characters and HTML tags; output is also escaped by React on render. */
+export function cleanText(v: string) {
+  return v.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").replace(/<[^>]*>/g, "").trim();
+}
+const text = (min: number, max: number, label: string) =>
+  z.string().transform(cleanText).pipe(
+    z.string().min(min, `${label} is too short`).max(max, `${label} is too long`),
+  );
+
+export const sellerProfileSchema = z.object({
+  shop_name: text(2, 60, "Shop name"),
+  location: text(2, 100, "Location"),
+  description: text(20, 600, "Description"),
+  avatar_url: z.string().url().optional().or(z.literal("")),
+});
+
+const money = z.coerce.number({ message: "Enter a valid price" }).min(0, "Price can't be negative").max(10_000_000, "Price is too high");
+
+export const listingSchema = z.object({
+  type: z.enum(["goods", "service"]),
+  title: text(3, 100, "Title"),
+  description: text(10, 2000, "Description"),
+  category_id: z.string().uuid("Choose a category"),
+  condition: z.enum(["new", "used"]).optional(),
+  quantity: z.coerce.number().int().min(1, "Quantity must be at least 1").max(9999).optional(),
+  price: money,
+  location: text(2, 100, "Location"),
+  delivery_time: z.string().transform(cleanText).pipe(z.string().max(40)).optional(),
+  portfolio_url: z.string().trim().url("Portfolio link must be a full URL").refine((u) => /^https?:\/\//i.test(u), "Use http(s) links only").optional().or(z.literal("")),
+  prohibited_ack: z.literal("on", { message: "Confirm that your listing has no prohibited items" }),
+}).superRefine((v, ctx) => {
+  if (v.type === "goods") {
+    if (!v.condition) ctx.addIssue({ code: "custom", path: ["condition"], message: "Choose a condition" });
+    if (!v.quantity) ctx.addIssue({ code: "custom", path: ["quantity"], message: "Enter a quantity" });
+  } else if (!v.delivery_time) {
+    ctx.addIssue({ code: "custom", path: ["delivery_time"], message: "Enter an estimated delivery time, e.g. 2 days" });
+  }
+});

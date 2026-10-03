@@ -16,9 +16,11 @@ export async function Header() {
         <nav className="flex items-center gap-1" aria-label="Main">
           {me ? (
             <>
+              <Link href="/dashboard" className={ghost}>Dashboard</Link>
               {me.role === "admin" && <Link href="/admin" className={ghost}>Admin</Link>}
               <Link href="/account" className={ghost}>{me.full_name.split(" ")[0]}</Link>
               <form action={logout}><button className={ghost}>Log out</button></form>
+              <Link href="/sell" className={solid}>Sell</Link>
             </>
           ) : (
             <>

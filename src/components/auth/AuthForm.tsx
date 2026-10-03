@@ -3,7 +3,6 @@ import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { requestLoginCode, requestSignupCode, verifyCode } from "@/app/(auth)/actions";
 import { Field, Notice, Spinner, btnPrimary, inputCls } from "@/components/ui/form";
-import { Eye, EyeOff } from "@/components/ui/icons";
 
 type Campus = { id: string; name: string };
 const link = "font-medium text-primary hover:underline";
@@ -11,7 +10,6 @@ const link = "font-medium text-primary hover:underline";
 function CodeStep({ email, next, resend }: { email: string; next: string; resend: (fd: FormData) => void }) {
   const [state, action, pending] = useActionState(verifyCode, {});
   const [wait, setWait] = useState(45);
-  const [show, setShow] = useState(false);
   useEffect(() => {
     if (wait <= 0) return;
     const t = setTimeout(() => setWait((w) => w - 1), 1000);
@@ -26,15 +24,8 @@ function CodeStep({ email, next, resend }: { email: string; next: string; resend
           We sent a 6-digit code to <b className="text-foreground">{email}</b>. It may take a minute. Check spam too.
         </p>
         <Field label="Verification code">
-          <div className="relative">
-            <input name="code" type={show ? "text" : "password"} inputMode="numeric" autoComplete="one-time-code"
-              maxLength={6} pattern="\d{6}" required autoFocus placeholder="••••••"
-              className={`${inputCls} pr-12 text-center font-mono text-xl tracking-[0.4em]`} />
-            <button type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide code" : "Show code"} aria-pressed={show}
-              className="absolute inset-y-0 right-0 grid w-12 place-items-center text-muted-foreground hover:text-foreground">
-              {show ? <EyeOff /> : <Eye />}
-            </button>
-          </div>
+          <input name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="\d{6}" required autoFocus
+            placeholder="000000" className={`${inputCls} text-center font-mono text-xl tracking-[0.4em]`} />
         </Field>
         <Notice error={state.error} />
         <button className={btnPrimary} disabled={pending}>{pending && <Spinner />}{pending ? "Verifying" : "Verify and continue"}</button>

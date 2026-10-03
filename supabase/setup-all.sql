@@ -512,6 +512,18 @@ create policy "delete own folder" on storage.objects for delete to authenticated
   using (bucket_id in ('listing-images', 'avatars') and ((storage.foldername(name))[1] = auth.uid()::text or public.is_admin()));
 -- Server (service role) calls the rate limiter; keep it closed to anon/authenticated.
 grant execute on function check_rate_limit(text, int, interval) to service_role;
+-- Per-listing views and WhatsApp clicks for the signed-in seller (respects RLS).
+create or replace function seller_listing_stats()
+returns table (listing_id uuid, views bigint, contact_clicks bigint)
+language sql stable security invoker set search_path = public as $$
+  select e.listing_id,
+         count(*) filter (where e.type = 'view'),
+         count(*) filter (where e.type = 'contact_click')
+  from events e join listings l on l.id = e.listing_id
+  where l.seller_id = auth.uid()
+  group by e.listing_id
+$$;
+grant execute on function seller_listing_stats() to authenticated;
 -- Campuses (edit email_domain to enforce institutional emails; leave null to allow any email)
 insert into campuses (name, county, email_domain) values
   ('University of Nairobi', 'Nairobi', null),
