@@ -10,7 +10,7 @@ const items = [
 export function AdminNav({ openReports, openFlags = 0, photoQueue = 0 }: { openReports: number; openFlags?: number; photoQueue?: number }) {
   const path = usePathname();
   return (
-    <nav aria-label="Admin" className="no-scrollbar -mx-4 mb-8 flex gap-2 overflow-x-auto px-4 pb-1">
+    <nav aria-label="Admin" className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
       {items.map(([href, label]) => {
         const active = href === "/admin" ? path === "/admin" : path.startsWith(href);
         return (

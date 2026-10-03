@@ -47,3 +47,15 @@ export function expiryEmail(o: { name: string; title: string; days: number; list
   });
   return { subject: `Your listing "${o.title}" expires ${when}`, html, text: `Your listing "${o.title}" expires ${when}. Renew or manage it: ${url}` };
 }
+
+export function accountDeletedEmail(o: { name: string }) {
+  const html = renderEmail({
+    title: "Your account was deleted",
+    preheader: "Your CampoSoko account and listings have been removed.",
+    bodyHtml: `<h1 style="margin:0 0 8px;font-size:22px">Your account has been deleted</h1>
+<p style="margin:0 0 16px;color:#44403c">Hi ${escapeHtml(o.name.split(" ")[0] || "there")}, as you asked, we deleted your ${escapeHtml(APP_NAME)} profile, shop, listings, wanted ads, photos and notifications.</p>
+<p style="margin:0 0 16px;color:#44403c">Receipts you issued or received are kept as plain records of those sales, without a link to an account.</p>
+<p style="margin:0 0 16px;color:#78716c;font-size:13px">If you did not do this, please contact us straight away.</p>`,
+  });
+  return { subject: `Your ${APP_NAME} account was deleted`, html, text: `Your ${APP_NAME} account and listings were deleted. If you did not request this, contact us immediately.` };
+}

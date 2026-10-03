@@ -5,6 +5,7 @@ import { Notice } from "@/components/ui/form";
 import Link from "next/link";
 import { logout } from "@/app/(auth)/actions";
 import { unblockUser } from "@/app/safety/actions";
+import { DeleteAccount } from "@/components/auth/DeleteAccount";
 import { PasswordForm } from "@/components/auth/PasswordForm";
 
 export const metadata = { title: "My account" };
@@ -56,6 +57,7 @@ export default async function Page() {
         {me.role === "admin" && <Link href="/admin" className="inline-flex h-12 flex-1 items-center justify-center rounded-lg border border-border font-semibold hover:bg-muted">Admin dashboard</Link>}
         <form action={logout} className="flex-1"><button className="inline-flex h-12 w-full items-center justify-center rounded-lg border border-border font-semibold text-danger hover:bg-muted">Log out</button></form>
       </div>
+      <DeleteAccount />
     </div>
   );
 }

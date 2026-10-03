@@ -29,6 +29,7 @@ The app name lives in one constant: `src/config/site.ts` (`APP_NAME`).
    | 10 | `10-shops-reviews-tags.sql` | Seller tags, shops, thumbs reviews |
    | 11 | `11-content-flags.sql` | Automatic content flags for admin review |
    | 12 | `12-ai-and-review.sql` | AI providers and settings, manual photo-review queue |
+   | 13 | `13-account-deletion.sql` | Lets accounts be deleted while keeping receipts as anonymous records |
 
    The same SQL is in `supabase/migrations/` (for the Supabase CLI: `supabase db push`). `supabase/setup-all.sql`
    is everything in one file for a brand-new project.
@@ -67,6 +68,8 @@ Run `npm run dev -- -H 0.0.0.0` and open `http://<your-computer-ip>:3000` on a p
 - WhatsApp contact only for logged-in, non-blocked users (numbers never appear in public pages or API responses).
 - Receipts: numbered, immutable, void with reason, PDF, WhatsApp share, public verification page with masked details,
   My purchases, and thumbs-up/down reviews.
+- Self-serve account deletion (Account page, needs password): removes profile, shop, listings, wanted ads, photos and
+  notifications; receipts stay as anonymous records.
 - Report and block. Terms and Privacy drafts (**have a lawyer review them before launch**).
 - Admin (`/admin`): stats and charts, listings, wanted ads, users, reports, receipts, campuses, categories, flags,
   audit log, CSV export.

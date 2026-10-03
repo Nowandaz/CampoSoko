@@ -4,6 +4,7 @@ import { DownloadLink, Badge, dangerBtn, PageTitle, Pager, selectCls, smallBtn, 
 import { markPhotosReviewed, setListingStatus, toggleFeatured } from "@/app/admin/actions";
 import { kes, timeAgo } from "@/lib/format";
 import { inputCls } from "@/components/ui/form";
+import { PhotoThumb } from "@/components/admin/PhotoReview";
 
 export const metadata = { title: "Listings" };
 
@@ -13,7 +14,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
   const page = Math.max(1, Number(sp.page) || 1);
   const [{ data: campuses }] = await Promise.all([sb.from("campuses").select("id, name").order("name")]);
   let q = sb.from("listings")
-    .select("id, title, type, price, status, featured, created_at, expires_at, photos_reviewed, profiles(full_name, email), campuses(name)", { count: "exact" });
+    .select("id, title, type, price, status, featured, created_at, expires_at, photos_reviewed, profiles(full_name, email), campuses(name), listing_images(url, position)", { count: "exact" });
   if (sp.q && likeSafe(sp.q)) q = q.ilike("title", `%${likeSafe(sp.q)}%`);
   if (sp.status && ["active", "sold", "expired", "removed"].includes(sp.status)) q = q.eq("status", sp.status);
   if (sp.photos === "pending") {
@@ -53,8 +54,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
             return (
               <tr key={l.id}>
                 <td className={td}>
-                  <Link href={`/listing/${l.id}`} className="font-medium hover:underline">{l.title}</Link>
-                  <div className="text-xs text-muted-foreground">{l.type === "goods" ? "Goods" : "Service"} · {kes(l.price)} · {(l.campuses as unknown as { name: string } | null)?.name} · {timeAgo(l.created_at)}</div>
+                  <div className="flex items-start gap-3">
+                    <PhotoThumb item={{ id: l.id, title: l.title, price: Number(l.price), seller: seller?.full_name ?? "", sellerEmail: seller?.email ?? "", reviewed: l.photos_reviewed, images: [...(l.listing_images ?? [])].sort((a, b) => a.position - b.position).map((i) => i.url) }} />
+                    <div className="min-w-0">
+                      <Link href={`/listing/${l.id}`} className="font-medium hover:underline">{l.title}</Link>
+                      <div className="text-xs text-muted-foreground">{l.type === "goods" ? "Goods" : "Service"} · {kes(l.price)} · {(l.campuses as unknown as { name: string } | null)?.name} · {timeAgo(l.created_at)}</div>
+                    </div>
+                  </div>
                 </td>
                 <td className={td}>{seller?.full_name}<div className="text-xs text-muted-foreground">{seller?.email}</div></td>
                 <td className={td}><Badge tone={tone[l.status as keyof typeof tone]}>{l.status}</Badge>{!l.photos_reviewed && l.status === "active" && <span className="ml-1"><Badge tone="orange">photos to review</Badge></span>}{l.featured && <span className="ml-1"><Badge tone="orange">featured</Badge></span>}</td>

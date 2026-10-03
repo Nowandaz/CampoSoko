@@ -12,7 +12,7 @@ export async function notifyPhotoReview(listingId: string, title: string) {
     for (const a of admins ?? []) {
       const { count } = await admin.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", a.id).eq("kind", "photo_review").is("read_at", null);
       if ((count ?? 0) >= 30) continue; // do not flood the bell during busy periods
-      await admin.from("notifications").insert({ user_id: a.id, kind: "photo_review", title: `New photos to review: ${title}`, body: "Check the photos look fine", link: "/admin/listings?photos=pending", listing_id: listingId });
+      await admin.from("notifications").insert({ user_id: a.id, kind: "photo_review", title: `New photos to review: ${title}`, body: "Check the photos look fine", link: "/admin/listings?photos=pending&review=1", listing_id: listingId });
     }
   } catch (e) {
     console.error("[review] could not notify admins:", e instanceof Error ? e.message : e);

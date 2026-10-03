@@ -10,8 +10,9 @@ import { aiFeatureOn } from "@/lib/ai/client";
 import { GridSkeleton } from "@/components/feed/ListingCard";
 
 export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const sp = await searchParams;
   const me = await getMe();
-  const p = parseFeedParams(await searchParams, me?.campus_id);
+  const p = parseFeedParams(sp, me?.campus_id);
   const sb = await createClient();
   const [{ data: campuses }, { data: categories }] = await Promise.all([
     sb.from("campuses").select("id, name").eq("active", true).order("name"),
@@ -22,6 +23,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
   const cats = categories ?? [];
   return (
     <div className="space-y-6">
+      {sp.deleted && <p role="status" className="rounded-xl bg-success/10 px-4 py-3 text-sm text-success">Your account has been deleted. We&apos;re sorry to see you go.</p>}
       <section className="rounded-2xl bg-primary-soft px-5 py-6 sm:px-8 sm:py-8">
         {me ? (
           <>

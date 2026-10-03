@@ -10,11 +10,11 @@ export async function loadOwnReceipt(sb: SupabaseClient, id: string, viewerId: s
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const { data: r } = await sb.from("receipts").select("*, receipt_items(name, quantity, unit_price, id)").eq("id", id).maybeSingle();
   if (!r) return null;
-  const { data: seller } = await sb.from("seller_profiles").select("shop_name").eq("user_id", r.seller_id).maybeSingle();
+  const { data: seller } = r.seller_id ? await sb.from("seller_profiles").select("shop_name").eq("user_id", r.seller_id).maybeSingle() : { data: null };
   const isSeller = r.seller_id === viewerId;
   const items = [...(r.receipt_items ?? [])].sort((a: { id: string }, b: { id: string }) => a.id.localeCompare(b.id));
   const data: ReceiptData = {
-    receipt_no: r.receipt_no, sale_date: r.sale_date, seller: seller?.shop_name ?? "Seller", buyer: r.buyer_name,
+    receipt_no: r.receipt_no, sale_date: r.sale_date, seller: seller?.shop_name ?? r.seller_name ?? "Seller", buyer: r.buyer_name,
     buyer_contact: isSeller || r.buyer_id === viewerId ? (r.buyer_phone ?? r.buyer_email) : null,
     payment_method: r.payment_method, mpesa_code: r.mpesa_code, notes: r.notes, total: Number(r.total),
     voided: r.voided, void_reason: r.void_reason, token: r.public_token,
