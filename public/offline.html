@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ea580c">
+<title>You're offline | CampoSoko</title>
+<style>
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 24px; text-align: center; font-family: system-ui, sans-serif; background: #fff; color: #292524; }
+  img { width: 56px; height: 56px; border-radius: 14px; }
+  h1 { font-size: 22px; margin: 16px 0 8px; }
+  p { color: #6b645e; margin: 0 0 20px; max-width: 320px; line-height: 1.5; }
+  button { background: #ea580c; color: #fff; border: 0; border-radius: 8px; padding: 12px 22px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  @media (prefers-color-scheme: dark) { body { background: #0c0a09; color: #f5f2ef; } p { color: #a8a09a; } }
+</style>
+</head>
+<body>
+  <main>
+    <img src="/logo-mark.svg" alt="">
+    <h1>You're offline</h1>
+    <p>CampoSoko needs an internet connection. Check your data or Wi-Fi, then try again.</p>
+    <button onclick="location.reload()">Try again</button>
+  </main>
+</body>
+</html>
