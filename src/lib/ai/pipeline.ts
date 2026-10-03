@@ -82,7 +82,7 @@ const WANTED_COLS = "id, title, description, type, campus_id, user_id, keywords,
 
 /**
  * Runs the AI checks for ONE post right after it is created or edited (moderation + matching).
- * If the AI is down or capped, the post stays unchecked and the hourly sweep picks it up.
+ * If the AI is down or capped, the post stays unchecked until an admin presses "Check waiting posts now".
  */
 export async function checkListingNow(id: string) {
   try {
@@ -97,7 +97,7 @@ export async function checkListingNow(id: string) {
     if (still?.status === "active") await matchForListing(c, l as ListingRow);
     await c.admin.from("listings").update({ ai_checked: true }).eq("id", id);
   } catch (e) {
-    console.error("[ai] post check postponed to the hourly sweep:", e instanceof AiUnavailable ? e.message : e);
+    console.error("[ai] post check left for the manual "Check waiting posts now" button:", e instanceof AiUnavailable ? e.message : e);
   }
 }
 
@@ -112,12 +112,12 @@ export async function checkWantedNow(id: string) {
     await matchForWanted(c, w as WantedRow);
     await c.admin.from("wanted_ads").update({ ai_checked: true }).eq("id", id);
   } catch (e) {
-    console.error("[ai] wanted check postponed to the hourly sweep:", e instanceof AiUnavailable ? e.message : e);
+    console.error("[ai] wanted check left for the manual "Check waiting posts now" button:", e instanceof AiUnavailable ? e.message : e);
   }
 }
 
 /**
- * Hourly sweep: anything not yet checked (the AI was down, capped, or the post is older than the on-post feature),
+ * Manual sweep (Admin, AI): anything not yet checked (the AI was down, capped, or the post is older than the on-post feature),
  * newest first, within the per-run call budget.
  */
 export async function runAiPass(): Promise<Stats> {

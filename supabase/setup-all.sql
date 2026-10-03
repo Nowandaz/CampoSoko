@@ -900,7 +900,7 @@ alter table content_flags enable row level security;
 -- Rows are written by the server with the service role; only admins can read or resolve them.
 create policy content_flags_admin_read on content_flags for select using (is_admin());
 create policy content_flags_admin_update on content_flags for update using (is_admin()) with check (is_admin());
--- AI providers + settings, hourly AI job bookkeeping, and the manual photo-review queue.
+-- AI providers + settings, AI run bookkeeping, and the manual photo-review queue.
 create table if not exists app_settings (
   key text primary key,
   value jsonb not null,
@@ -942,7 +942,7 @@ create table if not exists ai_runs (
 alter table ai_runs enable row level security;
 create policy ai_runs_admin_read on ai_runs for select using (is_admin());
 
--- Items already handled by the hourly AI pass (moderation + matching).
+-- Items already handled by the AI check (moderation + matching).
 alter table listings add column if not exists ai_checked boolean not null default false;
 alter table wanted_ads add column if not exists ai_checked boolean not null default false;
 create index if not exists listings_ai_idx on listings (created_at desc) where not ai_checked;

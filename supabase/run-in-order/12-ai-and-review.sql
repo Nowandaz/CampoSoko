@@ -1,4 +1,4 @@
--- AI providers + settings, hourly AI job bookkeeping, and the manual photo-review queue.
+-- AI providers + settings, AI run bookkeeping, and the manual photo-review queue.
 create table if not exists app_settings (
   key text primary key,
   value jsonb not null,
@@ -40,7 +40,7 @@ create table if not exists ai_runs (
 alter table ai_runs enable row level security;
 create policy ai_runs_admin_read on ai_runs for select using (is_admin());
 
--- Items already handled by the hourly AI pass (moderation + matching).
+-- Items already handled by the AI check (moderation + matching).
 alter table listings add column if not exists ai_checked boolean not null default false;
 alter table wanted_ads add column if not exists ai_checked boolean not null default false;
 create index if not exists listings_ai_idx on listings (created_at desc) where not ai_checked;

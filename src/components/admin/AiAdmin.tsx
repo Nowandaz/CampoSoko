@@ -137,7 +137,7 @@ export function RunNowButton() {
   const [pending, start] = useTransition();
   return (
     <div>
-      <button onClick={() => start(async () => setRes(await runAiNow()))} disabled={pending} className={`${smallBtn} gap-2`}>{pending && <Spinner />}Run AI check now</button>
+      <button onClick={() => start(async () => setRes(await runAiNow()))} disabled={pending} className={`${smallBtn} gap-2`}>{pending && <Spinner />}Check waiting posts now</button>
       <div className="mt-2"><Notice error={res.error} notice={res.notice} /></div>
     </div>
   );
@@ -155,7 +155,7 @@ export function SettingsForm({ s }: { s: SettingsRow }) {
     <form onSubmit={onSubmit} className="rounded-2xl bg-card p-5 ring-1 ring-border">
       <div className="divide-y divide-border">
         {toggle("ai_enabled", "AI features on", "Master switch for everything below.")}
-        {toggle("check_on_post", "Check every post straight away", "Each new listing or wanted ad is checked and matched within seconds of being posted. An hourly sweep catches anything missed. Uses about 2 to 3 AI calls per post.")}
+        {toggle("check_on_post", "Check every post automatically", "Each new listing or wanted ad is checked and matched within seconds of being posted. Uses about 2 to 3 AI calls per post. If this is off, posts are only checked when you press the button below.")}
         {toggle("auto_hide", "Auto-hide clearly prohibited posts", "Off by default. When on, posts the AI is 90% sure break the rules are removed and the seller is told. Otherwise they are only flagged for you.")}
         {toggle("ai_search", "Smart search for buyers", "Lets buyers type a normal sentence like “cheap laptop for coding under 25k”.")}
         {toggle("ai_shop_helper", "Shop writing helper for sellers", "Drafts a shop description and tags from a few rough notes.")}
@@ -163,7 +163,7 @@ export function SettingsForm({ s }: { s: SettingsRow }) {
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <label className="text-sm font-medium">Max AI calls per day<input name="daily_cap" type="number" min={10} defaultValue={s.daily_cap} className={`${inputCls} mt-1`} /></label>
-        <label className="text-sm font-medium">Max AI calls per hourly run<input name="run_cap" type="number" min={1} max={200} defaultValue={s.run_cap} className={`${inputCls} mt-1`} /></label>
+        <label className="text-sm font-medium">Max AI calls per manual check<input name="run_cap" type="number" min={1} max={200} defaultValue={s.run_cap} className={`${inputCls} mt-1`} /></label>
       </div>
       <div className="mt-3"><Notice error={state.error} notice={state.notice} /></div>
       <button disabled={pending} className="mt-4 inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-60">{pending && <Spinner />}Save settings</button>

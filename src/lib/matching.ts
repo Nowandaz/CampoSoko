@@ -52,7 +52,7 @@ export async function notifySellersOfWanted(wantedId: string) {
   return sent;
 }
 
-/** Notify one buyer that a listing fits their wanted ad (used by the hourly AI pass). Returns true if newly notified. */
+/** Notify one buyer that a listing fits their wanted ad (used by the AI check). Returns true if newly notified. */
 export async function notifyBuyerOfListing(wantedId: string, listingId: string) {
   const admin = createAdminClient();
   const [{ data: w }, { data: l }] = await Promise.all([

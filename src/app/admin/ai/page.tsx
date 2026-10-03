@@ -11,12 +11,16 @@ export default async function Page() {
   await requireAdmin();
   const admin = createAdminClient();
   const day = new Date().toISOString().slice(0, 10);
-  const [{ data: providers, error }, settings, { data: usage }, { data: runs }] = await Promise.all([
+  const since = new Date(Date.now() - 3 * 86_400_000).toISOString();
+  const [{ data: providers, error }, settings, { data: usage }, { data: runs }, { count: wl }, { count: ww }] = await Promise.all([
     admin.from("ai_providers").select("id, name, type, key_hint, endpoint, model, weight, active").order("created_at"),
     getSettings(),
     admin.from("ai_usage").select("calls, failures").eq("day", day).maybeSingle(),
     admin.from("ai_runs").select("id, started_at, stats, error").order("started_at", { ascending: false }).limit(5),
+    admin.from("listings").select("id", { count: "exact", head: true }).eq("ai_checked", false).eq("status", "active").gte("created_at", since),
+    admin.from("wanted_ads").select("id", { count: "exact", head: true }).eq("ai_checked", false).eq("status", "active").gte("created_at", since),
   ]);
+  const waiting = (wl ?? 0) + (ww ?? 0);
   return (
     <div className="space-y-8">
       <PageTitle title="AI">
@@ -33,7 +37,7 @@ export default async function Page() {
 
       <section aria-labelledby="settings" className="space-y-3">
         <h2 id="settings" className="text-lg font-semibold">What the AI does</h2>
-        <p className="text-sm text-muted-foreground">Each new post is checked for banned content and matched against wanted ads, listings and sellers within seconds, and an hourly sweep catches anything missed. Photos are never sent to the AI.</p>
+        <p className="text-sm text-muted-foreground">Each new post is checked for banned content and matched against wanted ads, listings and sellers within seconds of being posted. Photos are never sent to the AI.</p>
         <SettingsForm s={settings} />
       </section>
 
@@ -42,7 +46,7 @@ export default async function Page() {
           <h2 id="activity" className="text-lg font-semibold">Activity</h2>
           <RunNowButton />
         </div>
-        <p className="text-sm text-muted-foreground">Today: {usage?.calls ?? 0} of {settings.daily_cap} AI calls used{usage?.failures ? `, ${usage.failures} failed` : ""}.</p>
+        <p className="text-sm text-muted-foreground">{waiting ? `${waiting} recent post${waiting === 1 ? " is" : "s are"} waiting for a check (for example the AI was busy). ` : "All recent posts have been checked. "}Today: {usage?.calls ?? 0} of {settings.daily_cap} AI calls used{usage?.failures ? `, ${usage.failures} failed` : ""}.</p>
         {runs?.length ? (
           <ul className="divide-y divide-border rounded-2xl bg-card ring-1 ring-border">
             {runs.map((r) => {
@@ -55,7 +59,7 @@ export default async function Page() {
               );
             })}
           </ul>
-        ) : <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">No runs yet. The hourly job will appear here.</p>}
+        ) : <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">No manual checks yet.</p>}
       </section>
     </div>
   );

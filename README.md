@@ -79,16 +79,9 @@ Run `npm run dev -- -H 0.0.0.0` and open `http://<your-computer-ip>:3000` on a p
   audit log, CSV export.
 - Posting guard rails: prohibited-content rules, new-account limits, duplicate blocking, and an admin flag queue.
 - Optional AI (Admin, AI): add several providers (OpenRouter, Groq, OpenAI, Gemini, Anthropic) with weights and failover.
-  Every new post is checked within seconds (banned content in titles and descriptions, text only, plus extra buyer/seller matches);
-  an hourly sweep catches anything the AI missed.
+  Every new post is checked within seconds (banned content in titles and descriptions, text only, plus extra buyer/seller matches).
+  If the AI was busy, use "Check waiting posts now" in Admin, AI.
   Sellers get a shop-writing helper, buyers get "Smart search". Photos are reviewed manually: admins get a bell alert.
-
-## 3b. The hourly AI sweep
-New posts are checked straight away. As a safety net, anything unchecked (AI down or capped) is retried by an hourly sweep.
-Vercel's free plan only runs a cron once a day, so the sweep is triggered by a free GitHub Action
-(`.github/workflows/hourly.yml`). In your GitHub repo add two secrets (Settings, Secrets and variables, Actions):
-`SITE_URL` (your production URL) and `CRON_SECRET` (same value as in Vercel). You can also run it by hand from
-Admin, AI, "Run AI check now". Per-run and per-day call limits are in the same page.
 
 ## 4. Security notes
 
