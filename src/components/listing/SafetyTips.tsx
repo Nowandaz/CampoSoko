@@ -7,6 +7,7 @@ export function SafetyTips() {
         <li>Bring a friend and inspect items before you pay.</li>
         <li>Avoid paying in full upfront to strangers for goods or services.</li>
         <li>Never share your M-Pesa PIN or any OTP.</li>
+        <li>After you pay, ask the seller for a CampoSoko receipt and leave a quick review.</li>
       </ul>
     </aside>
   );

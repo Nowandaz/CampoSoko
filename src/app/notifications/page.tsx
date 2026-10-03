@@ -17,7 +17,7 @@ export default async function Page() {
   });
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Notifications</h1>
       {!data?.length ? (
         <div className="mt-6 rounded-2xl border border-dashed border-border px-6 py-14 text-center">
           <p className="font-semibold">Nothing yet</p>

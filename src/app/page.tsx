@@ -24,13 +24,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
         {me ? (
           <>
             <p className="text-sm font-medium text-primary">Hi {me.full_name.split(" ")[0]}</p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Find it on {myCampus ?? "your campus"}</h1>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Find it on {myCampus ?? "your campus"}</h1>
             <p className="mt-1.5 max-w-xl text-sm text-muted-foreground sm:text-base">Goods and online services from students near you. Message sellers straight on WhatsApp.</p>
           </>
         ) : (
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{APP_TAGLINE}</h1>
+              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{APP_TAGLINE}</h1>
               <p className="mt-1.5 max-w-xl text-sm text-muted-foreground sm:text-base">Buy, sell and request goods and online services from students on your campus.</p>
             </div>
             <Link href="/signup" className="inline-flex h-12 shrink-0 items-center justify-center rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover">Create a free account</Link>

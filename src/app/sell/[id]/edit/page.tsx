@@ -20,7 +20,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   };
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-2xl font-bold tracking-tight">Edit listing</h1>
+      <h1 className="mb-6 text-2xl font-semibold tracking-tight">Edit listing</h1>
       <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <ListingForm userId={me.id} categories={categories ?? []} defaultLocation={l.location} initial={initial} />
       </section>

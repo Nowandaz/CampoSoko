@@ -16,3 +16,8 @@ export const Megaphone = ({ className }: P) => (<svg {...base} className={classN
 export const Plus = ({ className }: P) => (<svg {...base} className={className}><path d="M12 5v14M5 12h14" /></svg>);
 export const Grid = ({ className }: P) => (<svg {...base} className={className}><rect x="4" y="4" width="7" height="7" rx="1.5" /><rect x="13" y="4" width="7" height="7" rx="1.5" /><rect x="4" y="13" width="7" height="7" rx="1.5" /><rect x="13" y="13" width="7" height="7" rx="1.5" /></svg>);
 export const User = ({ className }: P) => (<svg {...base} className={className}><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>);
+export const ThumbUp = ({ className }: P) => (<svg {...base} className={className}><path d="M7 11v9H4v-9h3zM7 11l4-8a2 2 0 0 1 2 2v4h5.5a2 2 0 0 1 2 2.3l-1 6a2 2 0 0 1-2 1.7H7" /></svg>);
+export const ThumbDown = ({ className }: P) => (<svg {...base} className={className}><path d="M7 13V4H4v9h3zM7 13l4 8a2 2 0 0 0 2-2v-4h5.5a2 2 0 0 0 2-2.3l-1-6A2 2 0 0 0 17.5 5H7" /></svg>);
+export const Store = ({ className }: P) => (<svg {...base} className={className}><path d="M4 9l1.5-5h13L20 9" /><path d="M4 9a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 6 0 2.5 2.5 0 0 0 5 0" /><path d="M5 12v8h14v-8M10 20v-5h4v5" /></svg>);
+export const Flag = ({ className }: P) => (<svg {...base} className={className}><path d="M5 21V4M5 4h12l-2 4 2 4H5" /></svg>);
+export const X = ({ className }: P) => (<svg {...base} className={className}><path d="M6 6l12 12M18 6L6 18" /></svg>);

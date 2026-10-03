@@ -4,8 +4,9 @@ import { useSafeForm } from "@/lib/use-safe-form";
 import { saveSellerProfile } from "@/app/sell/actions";
 import { Field, Notice, Spinner, btnPrimary, inputCls } from "@/components/ui/form";
 import { ImageUploader } from "./ImageUploader";
+import { TagInput } from "./TagInput";
 
-type Initial = { shop_name: string; location: string; description: string; avatar_url: string | null };
+type Initial = { shop_name: string; location: string; description: string; avatar_url: string | null; tags?: string[] };
 
 export function SellerProfileForm({ userId, initial, next }: { userId: string; initial?: Initial; next: string }) {
   const [s, action, pending] = useSafeForm(saveSellerProfile, {});
@@ -20,6 +21,9 @@ export function SellerProfileForm({ userId, initial, next }: { userId: string; i
       </Field>
       <Field label="About your shop" hint="At least 20 characters. Tell buyers what you sell or offer.">
         <textarea name="description" defaultValue={initial?.description} required minLength={20} maxLength={600} rows={4} className={`${inputCls} h-auto py-3`} />
+      </Field>
+      <Field label="What you sell or offer" hint="Add tags like laptops, textbooks, logo design, tutoring. When someone posts a wanted ad that matches, we alert you. Up to 12.">
+        <TagInput name="tags" initial={initial?.tags} />
       </Field>
       <ImageUploader userId={userId} bucket="avatars" max={1} name="avatar" label="Profile photo (optional)"
         initial={initial?.avatar_url ? [initial.avatar_url] : []} />

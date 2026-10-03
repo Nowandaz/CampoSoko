@@ -61,7 +61,7 @@ export function ReceiptForm({ listings, preselect, today }: { listings: L[]; pre
           <button type="button" onClick={() => setRows((rs) => [...rs, { key: k++, name: "", qty: "1", price: "" }])}
             className="h-10 rounded-lg border border-dashed border-border px-4 text-sm font-medium text-primary hover:bg-primary-soft">+ Add another item</button>
         )}
-        <p className="flex items-center justify-between rounded-xl bg-primary-soft px-4 py-3 text-sm"><span className="font-medium">Total</span><span className="text-xl font-bold tabular-nums">{money(total)}</span></p>
+        <p className="flex items-center justify-between rounded-xl bg-primary-soft px-4 py-3 text-sm"><span className="font-medium">Total</span><span className="text-xl font-semibold tabular-nums">{money(total)}</span></p>
       </fieldset>
 
       <div className="grid gap-5 sm:grid-cols-2">

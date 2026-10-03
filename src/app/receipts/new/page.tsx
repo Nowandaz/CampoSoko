@@ -16,7 +16,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ l
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Nairobi" }).format(new Date());
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold tracking-tight">Issue a receipt</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Issue a receipt</h1>
       <p className="mb-6 mt-1.5 text-sm text-muted-foreground">A record of the sale for you and the buyer, with a link anyone can use to verify it.</p>
       {me.suspended && <div className="mb-4"><Notice error="Your account is suspended. You can't issue receipts." /></div>}
       <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">

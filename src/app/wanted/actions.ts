@@ -1,5 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { notifySellersOfWanted } from "@/lib/matching";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -25,6 +27,7 @@ export async function createWanted(_: WantedState, fd: FormData): Promise<Wanted
     category_id: v.category_id, budget: v.budget ?? null, keywords: v.keywords, notify: v.notify,
   }).select("id").single();
   if (error || !created) return { error: "Could not post your ad. Please try again." };
+  after(() => notifySellersOfWanted(created.id).catch((e) => console.error("[matching] sellers failed:", e)));
   revalidatePath("/dashboard");
   redirect(`/wanted/${created.id}?posted=1`);
 }

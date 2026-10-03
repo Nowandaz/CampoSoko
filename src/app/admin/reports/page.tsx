@@ -41,6 +41,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                 <p className="mt-2 font-medium">&ldquo;{r.reason}&rdquo;</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {l ? <>Listing: <Link href={`/listing/${l.id}`} className="text-primary hover:underline">{l.title}</Link> ({l.status})</> : null}
+                  {l && target ? <span aria-hidden> · </span> : null}
                   {target ? <>User: <Link href={`/admin/users/${target.id}`} className="text-primary hover:underline">{target.full_name}</Link> ({target.email})</> : null}
                 </p>
                 {r.status === "open" && (

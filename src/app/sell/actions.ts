@@ -32,11 +32,17 @@ export async function saveSellerProfile(_: SellState, fd: FormData): Promise<Sel
   const parsed = sellerProfileSchema.safeParse({
     shop_name: fd.get("shop_name"), location: fd.get("location"), description: fd.get("description"),
     avatar_url: ownImages(fd.getAll("avatar"), "avatars", me.id)[0] ?? "",
+    tags: fd.getAll("tags").map(String),
   });
   if (!parsed.success) return { error: firstError(parsed.error) };
   const sb = await createClient();
   const { avatar_url, ...rest } = parsed.data;
-  const { error } = await sb.from("seller_profiles").upsert({ user_id: me.id, ...rest, avatar_url: avatar_url || null });
+  let { error } = await sb.from("seller_profiles").upsert({ user_id: me.id, ...rest, avatar_url: avatar_url || null });
+  if (error && /tags/i.test(error.message)) {
+    const { tags: _tags, ...withoutTags } = rest;
+    void _tags;
+    ({ error } = await sb.from("seller_profiles").upsert({ user_id: me.id, ...withoutTags, avatar_url: avatar_url || null }));
+  }
   if (error) return { error: "Could not save your seller profile." };
   revalidatePath("/dashboard");
   redirect(String(fd.get("next") ?? "").startsWith("/") ? String(fd.get("next")) : "/sell/new");

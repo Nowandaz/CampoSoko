@@ -19,3 +19,17 @@ export function matchEmail(o: { name: string; wantedTitle: string; listingTitle:
   });
   return { subject: `New match: ${o.listingTitle}`, html, text: `A listing matching your wanted ad "${o.wantedTitle}" was posted: ${o.listingTitle} (${kes(o.price)}). View it: ${url}` };
 }
+
+export function demandEmail(o: { name: string; shop: string; wantedTitle: string; wantedId: string }) {
+  const url = `${SITE_URL}/wanted/${o.wantedId}`;
+  const html = renderEmail({
+    title: "Someone on campus wants what you sell",
+    preheader: `Wanted: ${o.wantedTitle}`,
+    bodyHtml: `<h1 style="margin:0 0 8px;font-size:22px">A buyer is looking for something you sell</h1>
+<p style="margin:0 0 16px;color:#44403c">Hi ${escapeHtml(o.name.split(" ")[0] || "there")}, a student on your campus just posted a wanted ad that matches the tags on <b>${escapeHtml(o.shop)}</b>.</p>
+<div style="border:1px solid #fed7aa;background:#fff7ed;border-radius:12px;padding:16px;margin:0 0 20px"><div style="font-size:17px;font-weight:700">${escapeHtml(o.wantedTitle)}</div></div>
+<p style="margin:0 0 24px;text-align:center">${button(url, "See the request")}</p>
+<p style="margin:0 0 16px;color:#78716c;font-size:13px">You get this because your shop tags match. Edit your tags any time from your seller profile.</p>`,
+  });
+  return { subject: `Wanted on campus: ${o.wantedTitle}`, html, text: `A student wants "${o.wantedTitle}", which matches your shop tags. See it: ${url}` };
+}

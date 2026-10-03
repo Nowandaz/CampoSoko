@@ -20,6 +20,7 @@ const icons: Record<string, ReactNode> = {
   search: <><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></>,
   left: <path d="M15 5l-7 7 7 7" />,
   right: <path d="M9 5l7 7-7 7" />,
+  store: <><path d="M4 9l1.5-5h13L20 9" /><path d="M4 9a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 6 0 2.5 2.5 0 0 0 5 0" /><path d="M5 12v8h14v-8M10 20v-5h4v5" /></>,
   bag: <><path d="M5 8h14l-1 12H6L5 8z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></>,
 };
 

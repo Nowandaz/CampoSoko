@@ -20,6 +20,7 @@ The app name lives in one place: `src/config/site.ts` (`APP_NAME`).
    - `supabase/migrations/20260101000600_public_names.sql`
    - `supabase/migrations/20260101000700_receipts.sql`
    - `supabase/migrations/20260101000800_admin.sql`
+   - `supabase/migrations/20260101000900_shops_reviews_tags.sql`
    - `supabase/seed.sql` (3 campuses + categories)
    - Shortcut: paste `supabase/setup-all.sql` (all of the above) into the SQL Editor and run once.
 4. Supabase dashboard → Authentication:
@@ -46,7 +47,8 @@ The app name lives in one place: `src/config/site.ts` (`APP_NAME`).
 - [x] 5. Wanted ads, match alerts (in-app + email), notification bell
 - [x] 6. Receipts: numbered, immutable, void with reason, PDF, WhatsApp share, public verification, My purchases
 - [x] 7. Admin dashboard (overview, listings, wanted, users, reports, receipts, campuses, categories, audit log, CSV export)
-- [ ] 8–9. See project brief
+- [x] 8. Terms and Privacy (drafts), report and block, safety prompts, shops, tags, thumbs reviews
+- [ ] 9. Expiry reminders, rate-limit review, polish
 
 ## Testing on your phone
 Run `npm run dev -- -H 0.0.0.0`, then open `http://<your-computer-ip>:3000` on a phone on the same Wi-Fi.

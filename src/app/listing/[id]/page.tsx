@@ -12,6 +12,9 @@ import { ContactButton } from "@/components/listing/ContactButton";
 import { ViewTracker } from "@/components/listing/ViewTracker";
 import { SafetyTips } from "@/components/listing/SafetyTips";
 import { isBlocked } from "@/app/listing/actions";
+import { getShop } from "@/lib/shops";
+import { Rating } from "@/components/shop/Rating";
+import { ReportButton, BlockButton } from "@/components/safety/SafetyActions";
 
 const load = cache(async (id: string) => {
   if (!z.string().uuid().safeParse(id).success) return null;
@@ -45,6 +48,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const own = me?.id === l.seller_id;
   const blocked = me && !own ? await isBlocked(me.id, l.seller_id) : false;
   const available = l.status === "active";
+  const shop = seller ? await getShop(await createClient(), l.seller_id) : null;
 
   let contact: React.ReactNode;
   if (own) contact = <Link href={`/sell/${l.id}/edit`} className="inline-flex h-12 w-full items-center justify-center rounded-lg border border-border font-semibold hover:bg-muted">Edit your listing</Link>;
@@ -63,8 +67,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           <p className="text-xs font-medium uppercase tracking-wide text-primary">
             {l.type === "goods" ? "Goods" : "Online service"} · {l.categories?.name}
           </p>
-          <h1 className="mt-1 text-2xl font-bold leading-tight tracking-tight">{l.title}</h1>
-          <p className="mt-2 text-3xl font-bold tabular-nums">{l.type === "service" && <span className="mr-1.5 text-base font-medium text-muted-foreground">From</span>}{kes(l.price)}</p>
+          <h1 className="mt-1 text-2xl font-semibold leading-tight tracking-tight">{l.title}</h1>
+          <p className="mt-2 text-3xl font-semibold tabular-nums">{l.type === "service" && <span className="mr-1.5 text-base font-medium text-muted-foreground">From</span>}{kes(l.price)}</p>
         </div>
 
         <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
@@ -101,7 +105,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         {contact}
 
         {seller && (
-          <section className="flex gap-3 rounded-xl border border-border bg-card p-4">
+          <Link href={`/shop/${l.seller_id}`} className="flex gap-3 rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-md">
             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-muted">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {seller.avatar_url && <img src={seller.avatar_url} alt="" className="h-full w-full object-cover" />}
@@ -109,12 +113,20 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <div className="min-w-0">
               <p className="font-semibold">{seller.shop_name ?? seller.public_name}</p>
               <p className="text-xs text-muted-foreground">{seller.shop_location} · Member since {new Date(seller.created_at).toLocaleDateString("en-KE", { month: "short", year: "numeric" })}</p>
+              {shop && <Rating up={shop.up} down={shop.down} className="mt-1" />}
               {seller.shop_description && <p className="mt-1.5 line-clamp-3 text-sm text-muted-foreground">{seller.shop_description}</p>}
+              <p className="mt-2 text-sm font-medium text-primary">Visit shop</p>
             </div>
-          </section>
+          </Link>
         )}
 
         <SafetyTips />
+        {!own && (
+          <div className="flex flex-wrap items-start gap-1">
+            <ReportButton kind="listing" target={l.id} loggedIn={Boolean(me)} loginHref={`/login?next=${encodeURIComponent(`/listing/${l.id}`)}`} />
+            {me && <BlockButton target={l.seller_id} back="/" />}
+          </div>
+        )}
       </div>
     </article>
   );

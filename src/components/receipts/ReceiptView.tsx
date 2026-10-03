@@ -6,7 +6,7 @@ export function ReceiptView({ r, qr }: { r: ReceiptData; qr?: string }) {
   return (
     <article className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       <div className="flex items-center justify-between bg-primary px-5 py-4 text-primary-foreground">
-        <p className="text-lg font-bold tracking-tight">{APP_NAME}</p>
+        <p className="text-lg font-semibold tracking-tight">{APP_NAME}</p>
         <p className="text-sm font-medium opacity-90">Receipt</p>
       </div>
       {r.voided && (
@@ -52,7 +52,7 @@ export function ReceiptView({ r, qr }: { r: ReceiptData; qr?: string }) {
               ))}
             </tbody>
             <tfoot>
-              <tr><td colSpan={3} className="pt-3 text-right font-semibold">Total</td><td className={`pt-3 text-right text-lg font-bold tabular-nums ${r.voided ? "line-through opacity-60" : ""}`}>{money(r.total)}</td></tr>
+              <tr><td colSpan={3} className="pt-3 text-right font-semibold">Total</td><td className={`pt-3 text-right text-lg font-semibold tabular-nums ${r.voided ? "line-through opacity-60" : ""}`}>{money(r.total)}</td></tr>
             </tfoot>
           </table>
         </div>

@@ -1,7 +1,7 @@
 "use client";
 import { startTransition, useActionState, type FormEvent } from "react";
 
-export type FormResult = { error?: string; notice?: string; step?: "code"; email?: string };
+export type FormResult = { error?: string; notice?: string; step?: "code"; email?: string; done?: "up" | "down" };
 
 /**
  * Like useActionState, but returns an onSubmit handler instead of an action.

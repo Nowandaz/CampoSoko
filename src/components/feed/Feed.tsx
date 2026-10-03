@@ -7,6 +7,8 @@ import { ListingCard } from "./ListingCard";
 import { WantedCard } from "./WantedCard";
 import { HScroll } from "./HScroll";
 import { CategoryIcon } from "@/components/ui/category-icons";
+import { shopDirectory } from "@/lib/shops";
+import { ShopCard } from "@/components/shop/ShopCard";
 
 function Empty({ title, text, href, cta }: { title: string; text: string; href?: string; cta?: string }) {
   return (
@@ -93,7 +95,7 @@ export async function Feed({ p, cats, userId }: { p: FeedParams; cats: Cat[]; us
 
   // ---------- Goods / Services ----------
   if (browsing) {
-    const { latest, rows } = await fetchCategoryRows(sb, p, cats);
+    const [{ latest, rows }, { shops }] = await Promise.all([fetchCategoryRows(sb, p, cats), shopDirectory(sb, { campus: p.campusId, limit: 12 })]);
     if (!latest.length) return <Empty title={`No ${p.tab} listed yet`} text="Be the first to post on your campus." href="/sell" cta="Create a listing" />;
     return (
       <div className="space-y-9">
@@ -101,6 +103,12 @@ export async function Feed({ p, cats, userId }: { p: FeedParams; cats: Cat[]; us
           <RowHeader title="Just listed" />
           <HScroll label="Just listed">{latest.map((it) => <ListingCard key={it.id} item={it} compact slug="bag" />)}</HScroll>
         </section>
+        {shops.length > 0 && (
+          <section>
+            <RowHeader title="Visit a shop" slug="store" href="/shops" />
+            <HScroll label="Shops">{shops.map((sh) => <ShopCard key={sh.user_id} shop={sh} compact />)}</HScroll>
+          </section>
+        )}
         {rows.map(({ cat, items }) => (
           <section key={cat.id}>
             <RowHeader title={cat.name} slug={cat.slug} href={catHref(p, cat.id)} />

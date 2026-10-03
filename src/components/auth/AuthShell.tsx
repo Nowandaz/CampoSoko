@@ -14,7 +14,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
     <div className="mx-auto grid max-w-4xl grid-cols-1 items-start gap-10 py-4 md:grid-cols-[1fr_400px] md:py-10">
       <aside className="hidden md:block">
         <p className="text-sm font-semibold uppercase tracking-wider text-primary">{APP_NAME}</p>
-        <h2 className="mt-3 text-3xl font-bold leading-tight tracking-tight">The marketplace built for campus life.</h2>
+        <h2 className="mt-3 text-3xl font-semibold leading-tight tracking-tight">The marketplace built for campus life.</h2>
         <ul className="mt-8 space-y-5">
           {points.map(({ icon: Icon, title, text }) => (
             <li key={title} className="flex gap-4">
@@ -25,7 +25,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
         </ul>
       </aside>
       <section className="min-w-0 rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         <p className="mb-6 mt-1.5 text-sm text-muted-foreground">{subtitle}</p>
         {children}
       </section>

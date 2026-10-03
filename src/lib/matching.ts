@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
-import { matchEmail } from "@/lib/email/templates";
+import { demandEmail, matchEmail } from "@/lib/email/templates";
 
 /** Finds wanted ads matching a new listing, creates in-app notifications (once per pair) and emails the buyers. */
 export async function notifyWantedMatches(listingId: string) {
@@ -24,6 +24,29 @@ export async function notifyWantedMatches(listingId: string) {
       sent++;
     } catch (e) {
       console.error("[matching] email failed:", e instanceof Error ? e.message : e);
+    }
+  }
+  return sent;
+}
+
+/** Alerts sellers whose shop tags match a newly posted wanted ad (in-app + email). */
+export async function notifySellersOfWanted(wantedId: string) {
+  const admin = createAdminClient();
+  const { data: sellers, error } = await admin.rpc("match_sellers_for_wanted", { p_wanted: wantedId });
+  if (error || !sellers?.length) return 0;
+  const { data: w } = await admin.from("wanted_ads").select("title").eq("id", wantedId).single();
+  if (!w) return 0;
+  let sent = 0;
+  for (const s of sellers as { user_id: string; email: string; full_name: string; shop_name: string }[]) {
+    await admin.from("notifications").insert({
+      user_id: s.user_id, kind: "wanted_demand", title: `Wanted on campus: ${w.title}`,
+      body: "Matches the tags on your shop", link: `/wanted/${wantedId}`, wanted_id: wantedId,
+    });
+    try {
+      await sendEmail({ to: s.email, ...demandEmail({ name: s.full_name, shop: s.shop_name, wantedTitle: w.title, wantedId }) });
+      sent++;
+    } catch (e) {
+      console.error("[matching] seller email failed:", e instanceof Error ? e.message : e);
     }
   }
   return sent;

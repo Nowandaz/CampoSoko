@@ -9,7 +9,7 @@ export function BarChart({ title, data, unit }: { title: string; data: { d: stri
   const total = data.reduce((s, x) => s + x.n, 0);
   const label = (d: string) => new Date(d + "T00:00:00").toLocaleDateString("en-KE", { day: "numeric", month: "short" });
   return (
-    <figure className="rounded-2xl border border-border bg-card p-4">
+    <figure className="rounded-2xl bg-card p-5 ring-1 ring-border">
       <figcaption className="mb-2 flex items-baseline justify-between gap-2">
         <span className="font-semibold">{title}</span>
         <span className="text-xs text-muted-foreground">{total} in the last 30 days</span>
@@ -25,7 +25,7 @@ export function BarChart({ title, data, unit }: { title: string; data: { d: stri
           const h = Math.max(0, (H - T - B) * (x.n / nice));
           return (
             <g key={x.d}>
-              <rect x={L + i * bw + 1} y={y(x.n)} width={Math.max(1, bw - 2)} height={h} rx={Math.min(3, bw / 3)} fill="var(--primary)" opacity={x.n ? 1 : 0.18}>
+              <rect x={L + i * bw + 1} y={y(x.n)} width={Math.max(1, bw - 2)} height={h} rx={Math.min(3, bw / 3)} fill="var(--primary)" opacity={x.n ? 0.9 : 0.15}>
                 <title>{`${label(x.d)}: ${x.n} ${unit}`}</title>
               </rect>
               {(i === 0 || i === data.length - 1 || i % 7 === 0) && (

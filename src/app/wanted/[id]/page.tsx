@@ -12,6 +12,7 @@ import { isBlocked } from "@/app/listing/actions";
 import { findMatchingListings } from "@/lib/feed";
 import { ListingCard } from "@/components/feed/ListingCard";
 import { Notice } from "@/components/ui/form";
+import { ReportButton, BlockButton } from "@/components/safety/SafetyActions";
 
 const load = cache(async (id: string) => {
   if (!z.string().uuid().safeParse(id).success) return null;
@@ -49,7 +50,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     <article className="mx-auto max-w-2xl space-y-5">
       <div>
         <p className="text-xs font-medium uppercase tracking-wide text-primary">Wanted · {w.type === "goods" ? "Item" : "Online service"} · {w.categories?.name}</p>
-        <h1 className="mt-1 text-2xl font-bold leading-tight tracking-tight">{w.title}</h1>
+        <h1 className="mt-1 text-2xl font-semibold leading-tight tracking-tight">{w.title}</h1>
         <p className="mt-2 text-lg font-semibold">{w.budget != null ? `Budget ${kes(w.budget)}` : "No budget set"}</p>
         <p className="mt-1 text-sm text-muted-foreground">Posted by {name} · {w.campuses?.name} · {timeAgo(w.created_at)}</p>
       </div>
@@ -70,6 +71,12 @@ export default async function Page({ params, searchParams }: { params: Promise<{
         </section>
       )}
       <SafetyTips />
+      {!own && (
+        <div className="flex flex-wrap items-start gap-1">
+          <ReportButton kind="wanted" target={w.id} loggedIn={Boolean(me)} loginHref={`/login?next=${encodeURIComponent(`/wanted/${w.id}`)}`} />
+          {me && <BlockButton target={w.user_id} back="/" />}
+        </div>
+      )}
     </article>
   );
 }

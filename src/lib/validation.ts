@@ -58,6 +58,8 @@ export const sellerProfileSchema = z.object({
   location: text(2, 100, "Location"),
   description: text(20, 600, "Description"),
   avatar_url: z.string().url().optional().or(z.literal("")),
+  tags: z.array(z.string()).optional().transform((v) =>
+    [...new Set((v ?? []).map((t) => cleanText(t).toLowerCase().replace(/\s+/g, " ")).filter((t) => t.length >= 2 && t.length <= 30))].slice(0, 12)),
 });
 
 const money = z.coerce.number({ message: "Enter a valid price" }).min(0, "Price can't be negative").max(10_000_000, "Price is too high");

@@ -39,7 +39,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{seller?.shop_name ?? "Dashboard"}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{seller?.shop_name ?? "Dashboard"}</h1>
           <p className="mt-1 text-sm text-muted-foreground">Manage your listings and see how they perform.</p>
         </div>
         <div className="flex gap-2">
@@ -57,7 +57,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
         {[["Listings", listings?.length ?? 0], ["Views", totalViews], ["WhatsApp clicks", totalClicks]].map(([label, n]) => (
           <div key={label as string} className="rounded-xl border border-border bg-card p-4">
             <dt className="text-xs text-muted-foreground">{label}</dt>
-            <dd className="mt-1 text-2xl font-bold tabular-nums">{n}</dd>
+            <dd className="mt-1 text-2xl font-semibold tabular-nums">{n}</dd>
           </div>
         ))}
       </dl>
