@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { notifySellersOfWanted } from "@/lib/matching";
 import { checkText, recordFlag } from "@/lib/guard";
+import { checkWantedNow } from "@/lib/ai/pipeline";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -31,7 +32,10 @@ export async function createWanted(_: WantedState, fd: FormData): Promise<Wanted
   }).select("id").single();
   if (error || !created) return { error: "Could not post your ad. Please try again." };
   await recordFlag(guard.verdict, { targetType: "wanted", targetId: created.id, userId: me.id, excerpt: `${v.title}: ${v.description}` });
-  after(() => notifySellersOfWanted(created.id).catch((e) => console.error("[matching] sellers failed:", e)));
+  after(async () => {
+    await checkWantedNow(created.id);
+    await notifySellersOfWanted(created.id).catch((e) => console.error("[matching] sellers failed:", e));
+  });
   revalidatePath("/dashboard");
   redirect(`/wanted/${created.id}?posted=1`);
 }

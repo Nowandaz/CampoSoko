@@ -9,6 +9,8 @@ import { listingSchema, sellerProfileSchema, firstError } from "@/lib/validation
 import { MAX_IMAGES } from "@/config/site";
 import { checkPostingLimits, checkText, recordFlag } from "@/lib/guard";
 import { notifyPhotoReview, resetPhotoReview } from "@/lib/review";
+import { checkListingNow } from "@/lib/ai/pipeline";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type SellState = { error?: string; notice?: string };
 
@@ -83,8 +85,12 @@ export async function createListing(_: SellState, fd: FormData): Promise<SellSta
     after(() => notifyPhotoReview(listing.id, v.title));
   }
   await recordFlag(guard.verdict, { targetType: "listing", targetId: listing.id, userId: me.id, excerpt: `${v.title}: ${v.description}` });
-  // Alert buyers whose wanted ads match; runs after the response so posting stays fast.
-  after(() => notifyWantedMatches(listing.id).catch((e) => console.error("[matching] failed:", e)));
+  // Alert buyers whose wanted ads match, then run the AI check; both run after the response so posting stays fast.
+  after(async () => {
+    await checkListingNow(listing.id); // AI moderation first, so a prohibited post never triggers buyer alerts
+    const { data: now } = await createAdminClient().from("listings").select("status").eq("id", listing.id).maybeSingle();
+    if (now?.status === "active") await notifyWantedMatches(listing.id).catch((e) => console.error("[matching] failed:", e));
+  });
   revalidatePath("/dashboard");
   redirect("/dashboard?posted=1");
 }
@@ -113,6 +119,7 @@ export async function updateListing(_: SellState, fd: FormData): Promise<SellSta
   await sb.from("listing_images").delete().eq("listing_id", id);
   if (images.length) await sb.from("listing_images").insert(images.map((url, position) => ({ listing_id: id, url, position })));
   if (images.some((u) => !(old ?? []).some((o) => o.url === u))) after(() => resetPhotoReview(id, v.title));
+  after(() => checkListingNow(id)); // edited text gets a fresh check
   const removed = (old ?? []).map((r) => r.url).filter((u) => !images.includes(u)).map((u) => pathOf(u, "listing-images")).filter(Boolean);
   if (removed.length) await sb.storage.from("listing-images").remove(removed);
 

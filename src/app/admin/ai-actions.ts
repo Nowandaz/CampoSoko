@@ -107,7 +107,7 @@ export async function saveAiSettings(_: AiState, fd: FormData): Promise<AiState>
   await saveSettings({
     ...DEFAULTS, ...n.data,
     ai_enabled: flag("ai_enabled"), auto_hide: flag("auto_hide"), ai_search: flag("ai_search"),
-    ai_shop_helper: flag("ai_shop_helper"), notify_photo_reviews: flag("notify_photo_reviews"),
+    ai_shop_helper: flag("ai_shop_helper"), notify_photo_reviews: flag("notify_photo_reviews"), check_on_post: flag("check_on_post"),
   });
   await audit(sb, me.id, "save_ai_settings", "settings", "ai");
   revalidatePath("/admin/ai");

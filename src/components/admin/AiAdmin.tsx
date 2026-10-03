@@ -8,7 +8,7 @@ import { smallBtn } from "./ui";
 import { ActionForm } from "@/components/ActionForm";
 
 export type ProviderRow = { id: string; name: string; type: "openai" | "gemini" | "anthropic"; key_hint: string | null; endpoint: string | null; model: string | null; weight: number; active: boolean };
-export type SettingsRow = { ai_enabled: boolean; daily_cap: number; run_cap: number; auto_hide: boolean; ai_search: boolean; ai_shop_helper: boolean; notify_photo_reviews: boolean };
+export type SettingsRow = { ai_enabled: boolean; daily_cap: number; run_cap: number; auto_hide: boolean; ai_search: boolean; ai_shop_helper: boolean; notify_photo_reviews: boolean; check_on_post: boolean };
 
 const PRESETS = [
   { label: "OpenRouter (free models)", type: "openai", endpoint: "https://openrouter.ai/api/v1", model: "meta-llama/llama-3.3-70b-instruct:free" },
@@ -155,6 +155,7 @@ export function SettingsForm({ s }: { s: SettingsRow }) {
     <form onSubmit={onSubmit} className="rounded-2xl bg-card p-5 ring-1 ring-border">
       <div className="divide-y divide-border">
         {toggle("ai_enabled", "AI features on", "Master switch for everything below.")}
+        {toggle("check_on_post", "Check every post straight away", "Each new listing or wanted ad is checked and matched within seconds of being posted. An hourly sweep catches anything missed. Uses about 2 to 3 AI calls per post.")}
         {toggle("auto_hide", "Auto-hide clearly prohibited posts", "Off by default. When on, posts the AI is 90% sure break the rules are removed and the seller is told. Otherwise they are only flagged for you.")}
         {toggle("ai_search", "Smart search for buyers", "Lets buyers type a normal sentence like “cheap laptop for coding under 25k”.")}
         {toggle("ai_shop_helper", "Shop writing helper for sellers", "Drafts a shop description and tags from a few rough notes.")}

@@ -33,7 +33,7 @@ export default async function Page() {
 
       <section aria-labelledby="settings" className="space-y-3">
         <h2 id="settings" className="text-lg font-semibold">What the AI does</h2>
-        <p className="text-sm text-muted-foreground">Every hour it checks new posts for banned content, finds extra matches between wanted ads, listings and sellers, and sends the alerts. Photos are never sent to the AI.</p>
+        <p className="text-sm text-muted-foreground">Each new post is checked for banned content and matched against wanted ads, listings and sellers within seconds, and an hourly sweep catches anything missed. Photos are never sent to the AI.</p>
         <SettingsForm s={settings} />
       </section>
 
