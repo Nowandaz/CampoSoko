@@ -11,7 +11,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
   return (
     <div className="mx-auto max-w-sm">
       <h1 className="text-2xl font-extrabold">Welcome back</h1>
-      <p className="mb-6 mt-1 text-muted-foreground">We&apos;ll email you a 6-digit code. No password needed.</p>
+      <p className="mb-6 mt-1 text-muted-foreground">We&apos;ll email you a login code. No password needed.</p>
       <LoginForm next={next} />
     </div>
   );

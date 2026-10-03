@@ -17,7 +17,7 @@ export const whatsappSchema = z
   });
 
 export const emailSchema = z.string().trim().toLowerCase().email("Enter a valid email").max(254);
-export const otpSchema = z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code");
+export const otpSchema = z.string().trim().regex(/^\d{6,10}$/, "Enter the code from your email");
 
 export const signupSchema = z.object({
   full_name: z.string().trim().min(2, "Enter your full name").max(80),

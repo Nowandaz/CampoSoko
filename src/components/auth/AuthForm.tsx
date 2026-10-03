@@ -26,10 +26,10 @@ function CodeStep({ email, next, resend }: { email: string; next: string; resend
       <form action={action} className="space-y-4">
         <input type="hidden" name="email" value={email} />
         <input type="hidden" name="next" value={next} />
-        <p className="text-sm text-muted-foreground">We sent a 6-digit code to <b className="text-foreground">{email}</b>. Check spam too.</p>
+        <p className="text-sm text-muted-foreground">We sent a verification code to <b className="text-foreground">{email}</b>. Check spam too.</p>
         <label className="block text-sm font-medium">Verification code
-          <input name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="\d{6}" required autoFocus
-            className={`${input} mt-1 text-center text-2xl tracking-[0.5em]`} />
+          <input name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={10} pattern="\d{6,10}" required autoFocus
+            className={`${input} mt-1 text-center text-2xl tracking-[0.3em]`} />
         </label>
         <Alert s={state} />
         <button className={btn} disabled={pending}>{pending ? "Verifying…" : "Verify & continue"}</button>

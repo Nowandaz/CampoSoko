@@ -38,7 +38,7 @@ export function otpBody(code: string, heading: string, intro: string) {
   return `<h1 style="margin:0 0 8px;font-size:22px">${heading}</h1>
 <p style="margin:0 0 20px;color:#44403c">${intro}</p>
 <div style="text-align:center;margin:8px 0 20px">
-  <div style="display:inline-block;background:#fff7ed;border:2px dashed ${ORANGE};border-radius:12px;padding:14px 28px;font-size:34px;font-weight:800;letter-spacing:10px;color:${ORANGE};font-family:Menlo,Consolas,monospace">${code}</div>
+  <div style="display:inline-block;background:#fff7ed;border:2px dashed ${ORANGE};border-radius:12px;padding:14px 28px;font-size:30px;font-weight:800;letter-spacing:6px;color:${ORANGE};font-family:Menlo,Consolas,monospace">${code}</div>
 </div>
 <p style="margin:0 0 16px;color:#44403c">This code expires in 1 hour. If you didn't request it, you can safely ignore this email.</p>`;
 }

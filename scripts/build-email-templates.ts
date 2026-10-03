@@ -5,7 +5,7 @@ import { renderEmail, otpBody } from "../src/lib/email/layout";
 const t = (heading: string, intro: string, subjectNote: string) =>
   renderEmail({
     title: subjectNote,
-    preheader: "Your CampoSoko verification code is inside.",
+    preheader: "Your CampoSoko code is inside.",
     siteUrl: "{{ .SiteURL }}",
     bodyHtml: otpBody("{{ .Token }}", heading, intro),
   });
