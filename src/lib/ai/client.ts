@@ -3,7 +3,7 @@ import { APP_NAME, SITE_URL } from "@/config/site";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { decrypt } from "./crypto";
 import { getSettings } from "./settings";
-import { weightedOrder } from "./client-pure";
+import { explainHttpError, inferDefaults, weightedOrder } from "./client-pure";
 
 export type Provider = { id: string; name: string; type: "openai" | "gemini" | "anthropic"; key: string; endpoint: string | null; model: string | null; weight: number };
 export class AiUnavailable extends Error {}
@@ -14,7 +14,7 @@ export async function loadProviders(onlyActive = true): Promise<Provider[]> {
   if (error || !data) return [];
   const out: Provider[] = [];
   for (const r of data) {
-    try { out.push({ id: r.id, name: r.name, type: r.type, key: decrypt(r.api_key_enc), endpoint: r.endpoint, model: r.model, weight: r.weight }); }
+    try { out.push({ id: r.id, name: r.name, type: r.type, key: decrypt(r.api_key_enc).replace(/^bearer\s+/i, "").replace(/["'\s]/g, ""), endpoint: r.endpoint, model: r.model, weight: r.weight }); }
     catch { console.error(`[ai] could not decrypt key for provider "${r.name}" (was the secret rotated?)`); }
   }
   return out;
@@ -22,33 +22,42 @@ export async function loadProviders(onlyActive = true): Promise<Provider[]> {
 
 const trim = (u: string) => u.replace(/\/+$/, "");
 
-export async function callProvider(p: Provider, system: string, user: string, maxTokens = 700, signal?: AbortSignal): Promise<string> {
+const hostOf = (u: string) => { try { return new URL(u).host; } catch { return u; } };
+async function fail(p: Provider, url: string, res: Response): Promise<never> {
+  throw new Error(explainHttpError(p.name, hostOf(url), res.status, await res.text().catch(() => "")));
+}
+
+export async function callProvider(p0: Provider, system: string, user: string, maxTokens = 700, signal?: AbortSignal): Promise<string> {
+  const p: Provider = { ...p0, ...inferDefaults(p0.type, p0.key, p0.endpoint, p0.model) };
   if (p.type === "anthropic") {
-    const res = await fetch(`${trim(p.endpoint || "https://api.anthropic.com")}/v1/messages`, {
+    const url = `${trim(p.endpoint || "https://api.anthropic.com")}/v1/messages`;
+    const res = await fetch(url, {
       method: "POST", signal, headers: { "content-type": "application/json", "x-api-key": p.key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({ model: p.model || "claude-haiku-4-5-20251001", max_tokens: maxTokens, temperature: 0.2, system, messages: [{ role: "user", content: user }] }),
     });
-    if (!res.ok) throw new Error(`${p.name}: HTTP ${res.status}`);
+    if (!res.ok) return fail(p, url, res);
     const j = await res.json();
     return String(j?.content?.[0]?.text ?? "");
   }
   if (p.type === "gemini") {
     const model = p.model || "gemini-1.5-flash";
-    const res = await fetch(`${trim(p.endpoint || "https://generativelanguage.googleapis.com")}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    const url = `${trim(p.endpoint || "https://generativelanguage.googleapis.com")}/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+    const res = await fetch(url, {
       method: "POST", signal, headers: { "content-type": "application/json", "x-goog-api-key": p.key },
       body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: "user", parts: [{ text: user }] }], generationConfig: { temperature: 0.2, maxOutputTokens: maxTokens } }),
     });
-    if (!res.ok) throw new Error(`${p.name}: HTTP ${res.status}`);
+    if (!res.ok) return fail(p, url, res);
     const j = await res.json();
     return String(j?.candidates?.[0]?.content?.parts?.[0]?.text ?? "");
   }
   // OpenAI-compatible: OpenAI, OpenRouter, Groq, Together, and similar
-  const res = await fetch(`${trim(p.endpoint || "https://api.openai.com/v1")}/chat/completions`, {
+  const url = `${trim(p.endpoint || "https://api.openai.com/v1")}/chat/completions`;
+  const res = await fetch(url, {
     method: "POST", signal,
     headers: { "content-type": "application/json", authorization: `Bearer ${p.key}`, "HTTP-Referer": SITE_URL, "X-Title": APP_NAME },
     body: JSON.stringify({ model: p.model || "gpt-4o-mini", temperature: 0.2, max_tokens: maxTokens, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
   });
-  if (!res.ok) throw new Error(`${p.name}: HTTP ${res.status}`);
+  if (!res.ok) return fail(p, url, res);
   const j = await res.json();
   return String(j?.choices?.[0]?.message?.content ?? "");
 }

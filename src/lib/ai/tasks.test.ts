@@ -49,3 +49,20 @@ test("weighted order is a permutation that favours heavy providers", () => {
   for (let i = 0; i < 300; i++) { const o = weightedOrder(ps); assert.equal(o.length, 2); if (o[0].n === "b") bFirst++; }
   assert.ok(bFirst > 250);
 });
+
+import { explainHttpError, inferDefaults } from "./client-pure";
+
+test("keys without an endpoint get the right provider address", () => {
+  assert.equal(inferDefaults("openai", "sk-or-v1-abc", null, null).endpoint, "https://openrouter.ai/api/v1");
+  assert.equal(inferDefaults("openai", "gsk_abc", null, null).endpoint, "https://api.groq.com/openai/v1");
+  assert.equal(inferDefaults("openai", "sk-proj-abc", null, null).endpoint, null);
+  assert.equal(inferDefaults("openai", "sk-or-v1-abc", "https://x.example/v1", "m").endpoint, "https://x.example/v1");
+  assert.equal(inferDefaults("gemini", "sk-or-abc", null, null).endpoint, null);
+});
+
+test("HTTP errors are explained clearly", () => {
+  const m = explainHttpError("CampoSoko", "openrouter.ai", 401, '{"error":{"message":"No auth credentials found","code":401}}');
+  assert.match(m, /HTTP 401 from openrouter\.ai - No auth credentials found/);
+  assert.match(m, /key was rejected/);
+  assert.match(explainHttpError("x", "api.groq.com", 429, "slow down"), /too many requests/);
+});

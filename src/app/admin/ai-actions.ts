@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { encrypt, keyHint } from "@/lib/ai/crypto";
 import { callProvider, loadProviders } from "@/lib/ai/client";
 import { DEFAULTS, saveSettings } from "@/lib/ai/settings";
+import { inferDefaults } from "@/lib/ai/client-pure";
 import { runAndRecord } from "@/lib/ai/pipeline";
 import { cleanText, firstError } from "@/lib/validation";
 
@@ -36,7 +37,14 @@ export async function saveProvider(_: AiState, fd: FormData): Promise<AiState> {
   const { id, api_key, ...rest } = p.data;
   const admin = createAdminClient();
   const row: Record<string, unknown> = { ...rest };
-  if (api_key) { row.api_key_enc = encrypt(api_key); row.key_hint = keyHint(api_key); }
+  if (api_key) {
+    // Keys paste badly sometimes: strip spaces, quotes and a leading "Bearer ".
+    const key = api_key.replace(/^bearer\s+/i, "").replace(/["'\s]/g, "");
+    if (key.length < 12) return { error: "That API key looks too short. Copy the whole key." };
+    row.api_key_enc = encrypt(key); row.key_hint = keyHint(key);
+    // An OpenRouter or Groq key with no endpoint set gets the right address filled in.
+    Object.assign(row, inferDefaults(rest.type, key, rest.endpoint, rest.model));
+  }
   if (id) {
     const { error } = await admin.from("ai_providers").update(row).eq("id", id);
     if (error) return { error: "Could not update the provider" };
