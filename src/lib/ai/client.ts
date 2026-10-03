@@ -3,7 +3,7 @@ import { APP_NAME, SITE_URL } from "@/config/site";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { decrypt } from "./crypto";
 import { getSettings } from "./settings";
-import { explainHttpError, inferDefaults, weightedOrder } from "./client-pure";
+import { explainHttpError, inferDefaults, readChatReply, weightedOrder } from "./client-pure";
 
 export type Provider = { id: string; name: string; type: "openai" | "gemini" | "anthropic"; key: string; endpoint: string | null; model: string | null; weight: number };
 export class AiUnavailable extends Error {}
@@ -55,11 +55,10 @@ export async function callProvider(p0: Provider, system: string, user: string, m
   const res = await fetch(url, {
     method: "POST", signal,
     headers: { "content-type": "application/json", authorization: `Bearer ${p.key}`, "HTTP-Referer": SITE_URL, "X-Title": APP_NAME },
-    body: JSON.stringify({ model: p.model || "gpt-4o-mini", temperature: 0.2, max_tokens: maxTokens, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
+    body: JSON.stringify({ model: p.model || "gpt-4o-mini", temperature: 0.2, max_tokens: Math.max(maxTokens, 1024), messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
   });
   if (!res.ok) return fail(p, url, res);
-  const j = await res.json();
-  return String(j?.choices?.[0]?.message?.content ?? "");
+  return readChatReply(p.name, await res.json());
 }
 
 async function bump(failed: boolean) {

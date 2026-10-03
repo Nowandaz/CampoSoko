@@ -32,3 +32,15 @@ export function explainHttpError(name: string, host: string, status: number, bod
     : status >= 500 ? `${host} had a problem. Try again shortly.` : "";
   return `${name}: HTTP ${status} from ${host}${detail ? ` - ${detail}` : ""}${hint ? `. ${hint}` : ""}`;
 }
+
+/** Pulls the answer text out of an OpenAI-style chat response (string or parts), or explains why there is none. */
+export function readChatReply(name: string, j: unknown): string {
+  const choice = (j as { choices?: { message?: { content?: unknown; refusal?: string; reasoning?: string }; finish_reason?: string }[] })?.choices?.[0];
+  const c = choice?.message?.content;
+  const text = typeof c === "string" ? c : Array.isArray(c) ? c.map((p) => (typeof p === "string" ? p : (p as { text?: string })?.text ?? "")).join("") : "";
+  if (text.trim()) return text;
+  if (choice?.message?.refusal) throw new Error(`${name}: the model refused the request`);
+  if (choice?.finish_reason === "length" || choice?.message?.reasoning)
+    throw new Error(`${name}: the model used all its tokens thinking and returned no answer. Choose a non-reasoning model (for example a llama or gemma instruct model).`);
+  throw new Error(`${name}: the model returned an empty reply${choice?.finish_reason ? ` (finish reason: ${choice.finish_reason})` : ""}. Try another model.`);
+}

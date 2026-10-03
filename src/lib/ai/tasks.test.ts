@@ -66,3 +66,13 @@ test("HTTP errors are explained clearly", () => {
   assert.match(m, /key was rejected/);
   assert.match(explainHttpError("x", "api.groq.com", 429, "slow down"), /too many requests/);
 });
+
+import { readChatReply } from "./client-pure";
+
+test("chat replies: strings, parts, and empty reasoning-model answers", () => {
+  assert.equal(readChatReply("p", { choices: [{ message: { content: "OK" } }] }), "OK");
+  assert.equal(readChatReply("p", { choices: [{ message: { content: [{ type: "text", text: "O" }, { type: "text", text: "K" }] } }] }), "OK");
+  assert.throws(() => readChatReply("p", { choices: [{ message: { content: null, reasoning: "thinking..." }, finish_reason: "length" }] }), /thinking/);
+  assert.throws(() => readChatReply("p", { choices: [{ message: { content: "" }, finish_reason: "stop" }] }), /empty reply \(finish reason: stop\)/);
+  assert.throws(() => readChatReply("p", {}), /empty reply/);
+});

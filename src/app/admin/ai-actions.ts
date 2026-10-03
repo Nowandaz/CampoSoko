@@ -85,8 +85,8 @@ export async function testProviders(): Promise<AiState> {
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), 25_000);
     try {
-      const out = await callProvider(p, "Reply with the single word OK.", "Say OK.", 20, ctl.signal);
-      return { name: p.name, ok: /ok/i.test(out), ms: Date.now() - t0, detail: out.trim().slice(0, 60) || "empty reply" };
+      const out = await callProvider(p, "Reply with the single word OK.", "Say OK.", 1024, ctl.signal);
+      return { name: p.name, ok: out.trim().length > 0, ms: Date.now() - t0, detail: `replied "${out.trim().slice(0, 40)}"` };
     } catch (e) {
       return { name: p.name, ok: false, ms: Date.now() - t0, detail: e instanceof Error ? e.message.slice(0, 100) : "failed" };
     } finally { clearTimeout(timer); }
