@@ -13,10 +13,12 @@ The app name lives in one place: `src/config/site.ts` (`APP_NAME`).
 3. Apply the database (SQL Editor, in order — or `supabase db push` with the CLI):
    - `supabase/migrations/20260101000000_schema.sql`
    - `supabase/migrations/20260101000100_storage.sql`
+   - `supabase/migrations/20260101000200_rate_limit_grant.sql`
    - `supabase/seed.sql` (3 campuses + categories)
+   - Shortcut: paste `supabase/setup-all.sql` (all of the above) into the SQL Editor and run once.
 4. Supabase dashboard → Authentication:
    - **Providers → Email**: enable; turn **off** "Confirm email" link flow is not needed, we use OTP codes.
-   - **Email Templates → Magic Link / Confirm signup**: include `{{ .Token }}` so a 6-digit code is emailed.
+   - **Email Templates → Confirm signup** and **Magic Link**: paste `supabase/email-templates/confirm-signup.html` and `magic-link.html` (branded, show the 6-digit `{{ .Token }}`). Set the subjects to "Verify your CampoSoko account" / "Your CampoSoko login code". Regenerate with `npm run emails:build`.
    - **SMTP Settings**: enable custom SMTP using the same values as `SMTP_*` in `.env.local`.
 5. `npm run dev` → <http://localhost:3000>
 6. Optional demo data: `npm run seed:demo`
@@ -32,4 +34,5 @@ The app name lives in one place: `src/config/site.ts` (`APP_NAME`).
 
 ## Build progress
 - [x] 1. Setup, schema, RLS, seed
-- [ ] 2–9. See project brief
+- [x] 2. OTP sign-up / login, campus dropdown, account page
+- [ ] 3–9. See project brief

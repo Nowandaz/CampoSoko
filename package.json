@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed:demo": "tsx scripts/seed-demo.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "emails:build": "tsx scripts/build-email-templates.ts"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.9.0",

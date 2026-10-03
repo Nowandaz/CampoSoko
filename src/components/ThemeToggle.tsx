@@ -1,15 +1,19 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+const root = () => document.documentElement;
+function subscribe(cb: () => void) {
+  const o = new MutationObserver(cb);
+  o.observe(root(), { attributes: true, attributeFilter: ["data-theme"] });
+  return () => o.disconnect();
+}
 
 export function ThemeToggle() {
-  const [dark, setDark] = useState(false);
-  useEffect(() => setDark(document.documentElement.dataset.theme === "dark"), []);
+  const dark = useSyncExternalStore(subscribe, () => root().dataset.theme === "dark", () => false);
   function toggle() {
-    const next = !dark;
-    setDark(next);
-    if (next) document.documentElement.dataset.theme = "dark";
-    else delete document.documentElement.dataset.theme;
-    try { localStorage.setItem("theme", next ? "dark" : "light"); } catch {}
+    if (dark) delete root().dataset.theme;
+    else root().dataset.theme = "dark";
+    try { localStorage.setItem("theme", dark ? "light" : "dark"); } catch {}
   }
   return (
     <button onClick={toggle} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
