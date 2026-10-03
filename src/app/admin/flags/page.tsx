@@ -3,6 +3,7 @@ import { PAGE, requireAdmin } from "@/lib/admin";
 import { Badge, dangerBtn, PageTitle, Pager, smallBtn } from "@/components/admin/ui";
 import { dismissFlag, removeFlagged, suspendFlagged } from "@/app/admin/actions";
 import { timeAgo } from "@/lib/format";
+import { ActionForm } from "@/components/ActionForm";
 
 export const metadata = { title: "Flags" };
 
@@ -47,9 +48,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                   {href && <Link href={href} className={smallBtn}>View</Link>}
                   {f.status === "open" && (
                     <>
-                      <form action={dismissFlag}><input type="hidden" name="id" value={f.id} /><button className={smallBtn}>Looks fine</button></form>
-                      {(f.target_type === "listing" || f.target_type === "wanted") && <form action={removeFlagged}><input type="hidden" name="id" value={f.id} /><button className={dangerBtn}>Remove post</button></form>}
-                      <form action={suspendFlagged}><input type="hidden" name="id" value={f.id} /><button className={dangerBtn}>Suspend user</button></form>
+                      <ActionForm action={dismissFlag} success="Flag dismissed"><input type="hidden" name="id" value={f.id} /><button className={smallBtn}>Looks fine</button></ActionForm>
+                      {(f.target_type === "listing" || f.target_type === "wanted") && <ActionForm action={removeFlagged} success="Post removed" confirm="Remove this post?" danger><input type="hidden" name="id" value={f.id} /><button className={dangerBtn}>Remove post</button></ActionForm>}
+                      <ActionForm action={suspendFlagged} success="User suspended" confirm="Suspend this user? They won't be able to post or contact others." danger><input type="hidden" name="id" value={f.id} /><button className={dangerBtn}>Suspend user</button></ActionForm>
                     </>
                   )}
                 </div>

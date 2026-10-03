@@ -5,6 +5,7 @@ import { APP_NAME, APP_TAGLINE } from "@/config/site";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { BottomNav } from "@/components/BottomNav";
+import { FeedbackProvider, FlashToast } from "@/components/feedback";
 import { getMe } from "@/lib/auth";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -24,10 +25,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" suppressHydrationWarning className={inter.variable}>
       <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
       <body className="min-h-dvh flex flex-col antialiased">
+        <FeedbackProvider>
+        <FlashToast />
         <Header />
         <main className="flex-1 mx-auto w-full max-w-5xl px-4 py-8">{children}</main>
         <Footer padForNav={Boolean(me)} />
         {me && <BottomNav />}
+        </FeedbackProvider>
       </body>
     </html>
   );

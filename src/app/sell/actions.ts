@@ -127,13 +127,13 @@ async function mine(id: FormDataEntryValue | null) {
 
 export async function markSold(fd: FormData) {
   const { me, id, sb } = await mine(fd.get("id"));
-  await sb.from("listings").update({ status: "sold" }).eq("id", id).eq("seller_id", me.id).eq("status", "active");
+  { const { error } = await sb.from("listings").update({ status: "sold" }).eq("id", id).eq("seller_id", me.id).eq("status", "active"); if (error) return { error: "That didn't save. Please try again." }; }
   revalidatePath("/dashboard");
 }
 
 export async function renewListing(fd: FormData) {
   const { id, sb } = await mine(fd.get("id"));
-  await sb.rpc("renew_listing", { p_listing: id });
+  { const { error } = await sb.rpc("renew_listing", { p_listing: id }); if (error) return { error: "That didn't save. Please try again." }; }
   revalidatePath("/dashboard");
 }
 

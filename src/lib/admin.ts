@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 /** Defence in depth: the proxy gates /admin, RLS gates the data, and this gates every page and action. */
 export async function requireAdmin() {
   const me = await getMe();
-  if (!me || me.role !== "admin" || me.suspended) redirect("/");
+  if (!me || me.role !== "admin" || me.suspended) redirect("/?notice=admin-only");
   return { me, sb: await createClient() };
 }
 

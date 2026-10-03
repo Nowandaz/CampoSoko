@@ -5,6 +5,7 @@ import { markPhotosReviewed, setListingStatus, toggleFeatured } from "@/app/admi
 import { kes, timeAgo } from "@/lib/format";
 import { inputCls } from "@/components/ui/form";
 import { PhotoThumb } from "@/components/admin/PhotoReview";
+import { ActionForm } from "@/components/ActionForm";
 
 export const metadata = { title: "Listings" };
 
@@ -69,12 +70,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
                 <td className={`${td} tabular-nums`}>{Number(s?.reports ?? 0) > 0 ? <Badge tone="red">{Number(s?.reports)}</Badge> : 0}</td>
                 <td className={td}>
                   <div className="flex flex-wrap gap-1.5">
-                    {!l.photos_reviewed && l.status === "active" && <form action={markPhotosReviewed}><input type="hidden" name="id" value={l.id} /><button className={smallBtn}>Photos OK</button></form>}
+                    {!l.photos_reviewed && l.status === "active" && <ActionForm action={markPhotosReviewed} success="Photos approved"><input type="hidden" name="id" value={l.id} /><button className={smallBtn}>Photos OK</button></ActionForm>}
                     <Link href={`/admin/listings/${l.id}/edit`} className={smallBtn}>Edit</Link>
-                    <form action={toggleFeatured}><input type="hidden" name="id" value={l.id} /><input type="hidden" name="featured" value={String(!l.featured)} /><button className={smallBtn}>{l.featured ? "Unfeature" : "Feature"}</button></form>
+                    <ActionForm action={toggleFeatured} success="Featured updated"><input type="hidden" name="id" value={l.id} /><input type="hidden" name="featured" value={String(!l.featured)} /><button className={smallBtn}>{l.featured ? "Unfeature" : "Feature"}</button></ActionForm>
                     {l.status === "removed"
-                      ? <form action={setListingStatus}><input type="hidden" name="id" value={l.id} /><input type="hidden" name="status" value="active" /><button className={smallBtn}>Restore</button></form>
-                      : <form action={setListingStatus}><input type="hidden" name="id" value={l.id} /><input type="hidden" name="status" value="removed" /><button className={dangerBtn}>Remove</button></form>}
+                      ? <ActionForm action={setListingStatus} success="Listing updated"><input type="hidden" name="id" value={l.id} /><input type="hidden" name="status" value="active" /><button className={smallBtn}>Restore</button></ActionForm>
+                      : <ActionForm action={setListingStatus} success="Listing updated" confirm="Remove this listing? It will disappear from the feed." danger><input type="hidden" name="id" value={l.id} /><input type="hidden" name="status" value="removed" /><button className={dangerBtn}>Remove</button></ActionForm>}
                   </div>
                 </td>
               </tr>

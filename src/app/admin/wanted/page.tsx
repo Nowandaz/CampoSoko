@@ -4,6 +4,7 @@ import { Badge, dangerBtn, PageTitle, Pager, smallBtn, Table, td, th } from "@/c
 import { setWantedStatus } from "@/app/admin/actions";
 import { kes, timeAgo } from "@/lib/format";
 import { inputCls } from "@/components/ui/form";
+import { ActionForm } from "@/components/ActionForm";
 
 export const metadata = { title: "Wanted ads" };
 
@@ -31,10 +32,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
                 <td className={td}>{u?.full_name}<div className="text-xs text-muted-foreground">{u?.email}</div></td>
                 <td className={td}><Badge tone={w.status === "active" ? "green" : w.status === "removed" ? "red" : "gray"}>{w.status === "fulfilled" ? "closed" : w.status}</Badge></td>
                 <td className={td}>
-                  <form action={setWantedStatus}><input type="hidden" name="id" value={w.id} />
+                  <ActionForm action={setWantedStatus} success="Ad updated"><input type="hidden" name="id" value={w.id} />
                     {w.status === "removed" ? <><input type="hidden" name="status" value="active" /><button className={smallBtn}>Restore</button></>
                       : <><input type="hidden" name="status" value="removed" /><button className={dangerBtn}>Remove</button></>}
-                  </form>
+                  </ActionForm>
                 </td>
               </tr>
             );

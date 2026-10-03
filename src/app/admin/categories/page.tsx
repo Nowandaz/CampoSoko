@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/admin";
 import { Badge, PageTitle, smallBtn } from "@/components/admin/ui";
 import { CategoryForm } from "@/components/admin/AdminForms";
 import { setCategoryActive } from "@/app/admin/actions";
+import { ActionForm } from "@/components/ActionForm";
 
 export const metadata = { title: "Categories" };
 
@@ -17,7 +18,7 @@ export default async function Page() {
         {(data ?? []).map((c) => (
           <li key={c.id} className="rounded-2xl border border-border bg-card p-4">
             <div className="mb-3 flex items-center justify-between gap-2"><Badge tone={c.active ? "green" : "gray"}>{c.active ? "active" : "inactive"}</Badge>
-              <form action={setCategoryActive}><input type="hidden" name="id" value={c.id} /><input type="hidden" name="active" value={String(!c.active)} /><button className={smallBtn}>{c.active ? "Deactivate" : "Activate"}</button></form></div>
+              <ActionForm action={setCategoryActive} success="Saved"><input type="hidden" name="id" value={c.id} /><input type="hidden" name="active" value={String(!c.active)} /><button className={smallBtn}>{c.active ? "Deactivate" : "Activate"}</button></ActionForm></div>
             <CategoryForm c={c} />
           </li>
         ))}

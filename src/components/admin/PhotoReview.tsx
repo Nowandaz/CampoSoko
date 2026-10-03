@@ -5,6 +5,7 @@ import { markPhotosReviewed, setListingStatus } from "@/app/admin/actions";
 import { Spinner } from "@/components/ui/form";
 import { X } from "@/components/ui/icons";
 import { kes } from "@/lib/format";
+import { useFeedback } from "@/components/feedback";
 
 export type ReviewItem = { id: string; title: string; price: number; seller: string; sellerEmail: string; images: string[]; reviewed: boolean };
 type Ctx = { open: (item?: ReviewItem) => void; pending: number };
@@ -19,6 +20,7 @@ export function PhotoReviewProvider({ queue, children }: { queue: ReviewItem[]; 
   const [shot, setShot] = useState(0);
   const [done, setDone] = useState(false);
   const [busy, start] = useTransition();
+  const fb = useFeedback();
   const [skipped, setSkipped] = useState<string[]>([]);
 
   const show = useCallback((it: ReviewItem | null) => {
@@ -47,9 +49,14 @@ export function PhotoReviewProvider({ queue, children }: { queue: ReviewItem[]; 
     fd.set("id", item.id);
     if (kind === "remove") fd.set("status", "removed");
     start(async () => {
-      await (kind === "ok" ? markPhotosReviewed(fd) : setListingStatus(fd));
-      router.refresh();
-      next(item.id);
+      try {
+        await (kind === "ok" ? markPhotosReviewed(fd) : setListingStatus(fd));
+        router.refresh();
+        fb.success(kind === "ok" ? "Photos approved" : "Listing removed");
+        next(item.id);
+      } catch {
+        fb.error("Couldn't save that. Check your connection and try again.");
+      }
     });
   };
 
@@ -100,7 +107,7 @@ export function PhotoReviewProvider({ queue, children }: { queue: ReviewItem[]; 
                     {busy && <Spinner />}Photos look fine{pendingCount > 1 ? ", next" : ""}
                   </button>
                 )}
-                <button disabled={busy} onClick={() => { if (confirm("Remove this listing?")) act("remove"); }} className="h-12 rounded-lg border border-danger/40 px-5 text-sm font-semibold text-danger hover:bg-danger/10 disabled:opacity-60">Remove listing</button>
+                <button disabled={busy} onClick={async () => { if (await fb.confirm({ message: "Remove this listing? It will disappear from the feed.", confirmLabel: "Remove", danger: true })) act("remove"); }} className="h-12 rounded-lg border border-danger/40 px-5 text-sm font-semibold text-danger hover:bg-danger/10 disabled:opacity-60">Remove listing</button>
                 {!item.reviewed && pendingCount > 1 && (
                   <button disabled={busy} onClick={() => { setSkipped((s) => [...s, item.id]); next(item.id); }} className="h-12 rounded-lg border border-border px-5 text-sm font-medium hover:bg-muted">Skip</button>
                 )}

@@ -4,6 +4,7 @@ import { DownloadLink, Badge, dangerBtn, PageTitle, Pager, selectCls, smallBtn, 
 import { setRole, setSuspended } from "@/app/admin/actions";
 import { timeAgo } from "@/lib/format";
 import { inputCls } from "@/components/ui/form";
+import { ActionForm } from "@/components/ActionForm";
 
 export const metadata = { title: "Users" };
 
@@ -46,10 +47,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
                 <td className={td}>
                   {self ? <span className="text-xs text-muted-foreground">You</span> : (
                     <div className="flex flex-wrap gap-1.5">
-                      <form action={setSuspended}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="suspended" value={String(!u.suspended)} />
-                        <button className={u.suspended ? smallBtn : dangerBtn}>{u.suspended ? "Unsuspend" : "Suspend"}</button></form>
-                      <form action={setRole}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="role" value={u.role === "admin" ? "user" : "admin"} />
-                        <button className={smallBtn}>{u.role === "admin" ? "Remove admin" : "Make admin"}</button></form>
+                      <ActionForm action={setSuspended} success="User updated" confirm={u.suspended ? undefined : "Suspend this user? They won't be able to post or contact others."} danger><input type="hidden" name="id" value={u.id} /><input type="hidden" name="suspended" value={String(!u.suspended)} />
+                        <button className={u.suspended ? smallBtn : dangerBtn}>{u.suspended ? "Unsuspend" : "Suspend"}</button></ActionForm>
+                      <ActionForm action={setRole} success="Role updated" confirm={u.role === "admin" ? undefined : "Give this person full admin access?"}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="role" value={u.role === "admin" ? "user" : "admin"} />
+                        <button className={smallBtn}>{u.role === "admin" ? "Remove admin" : "Make admin"}</button></ActionForm>
                     </div>
                   )}
                 </td>

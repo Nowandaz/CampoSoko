@@ -3,6 +3,7 @@ import { PAGE, requireAdmin } from "@/lib/admin";
 import { Badge, dangerBtn, PageTitle, Pager, smallBtn } from "@/components/admin/ui";
 import { dismissReport, removeReportedListing, suspendReportedUser } from "@/app/admin/actions";
 import { timeAgo } from "@/lib/format";
+import { ActionForm } from "@/components/ActionForm";
 
 export const metadata = { title: "Reports" };
 
@@ -46,9 +47,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                 </p>
                 {r.status === "open" && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <form action={dismissReport}><input type="hidden" name="id" value={r.id} /><button className={smallBtn}>Dismiss</button></form>
-                    {r.listing_id && <form action={removeReportedListing}><input type="hidden" name="id" value={r.id} /><button className={dangerBtn}>Remove listing</button></form>}
-                    <form action={suspendReportedUser}><input type="hidden" name="id" value={r.id} /><button className={dangerBtn}>Suspend user</button></form>
+                    <ActionForm action={dismissReport} success="Report dismissed"><input type="hidden" name="id" value={r.id} /><button className={smallBtn}>Dismiss</button></ActionForm>
+                    {r.listing_id && <ActionForm action={removeReportedListing} success="Listing removed" confirm="Remove this listing?" danger><input type="hidden" name="id" value={r.id} /><button className={dangerBtn}>Remove listing</button></ActionForm>}
+                    <ActionForm action={suspendReportedUser} success="User suspended" confirm="Suspend this user? They won't be able to post or contact others." danger><input type="hidden" name="id" value={r.id} /><button className={dangerBtn}>Suspend user</button></ActionForm>
                   </div>
                 )}
               </li>

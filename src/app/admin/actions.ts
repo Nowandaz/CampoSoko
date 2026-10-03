@@ -17,7 +17,7 @@ export async function setListingStatus(fd: FormData) {
   const { me, sb } = await requireAdmin();
   const lid = id(fd);
   const status = z.enum(["active", "removed"]).parse(fd.get("status"));
-  await sb.from("listings").update({ status, ...(status === "active" ? { expires_at: new Date(Date.now() + 30 * 864e5).toISOString() } : {}) }).eq("id", lid);
+  { const { error } = await sb.from("listings").update({ status, ...(status === "active" ? { expires_at: new Date(Date.now() + 30 * 864e5).toISOString() } : {}) }).eq("id", lid); if (error) return { error: "That didn't save. Please try again." }; }
   await audit(sb, me.id, status === "removed" ? "remove_listing" : "restore_listing", "listing", lid);
   revalidatePath("/admin/listings");
 }
@@ -25,7 +25,7 @@ export async function setListingStatus(fd: FormData) {
 export async function markPhotosReviewed(fd: FormData) {
   const { me, sb } = await requireAdmin();
   const lid = id(fd);
-  await sb.from("listings").update({ photos_reviewed: true }).eq("id", lid);
+  { const { error } = await sb.from("listings").update({ photos_reviewed: true }).eq("id", lid); if (error) return { error: "That didn't save. Please try again." }; }
   await audit(sb, me.id, "photos_ok", "listing", lid);
   revalidatePath("/admin/listings");
 }
@@ -34,7 +34,7 @@ export async function toggleFeatured(fd: FormData) {
   const { me, sb } = await requireAdmin();
   const lid = id(fd);
   const featured = fd.get("featured") === "true";
-  await sb.from("listings").update({ featured }).eq("id", lid);
+  { const { error } = await sb.from("listings").update({ featured }).eq("id", lid); if (error) return { error: "That didn't save. Please try again." }; }
   await audit(sb, me.id, featured ? "feature_listing" : "unfeature_listing", "listing", lid);
   revalidatePath("/admin/listings");
 }
@@ -94,7 +94,7 @@ export async function setWantedStatus(fd: FormData) {
   const { me, sb } = await requireAdmin();
   const wid = id(fd);
   const status = z.enum(["active", "removed"]).parse(fd.get("status"));
-  await sb.from("wanted_ads").update({ status }).eq("id", wid);
+  { const { error } = await sb.from("wanted_ads").update({ status }).eq("id", wid); if (error) return { error: "That didn't save. Please try again." }; }
   await audit(sb, me.id, status === "removed" ? "remove_wanted" : "restore_wanted", "wanted_ad", wid);
   revalidatePath("/admin/wanted");
 }
@@ -105,7 +105,7 @@ export async function setSuspended(fd: FormData) {
   const uid = id(fd);
   if (uid === me.id) return;
   const suspended = fd.get("suspended") === "true";
-  await sb.from("profiles").update({ suspended }).eq("id", uid);
+  { const { error } = await sb.from("profiles").update({ suspended }).eq("id", uid); if (error) return { error: "That didn't save. Please try again." }; }
   await audit(sb, me.id, suspended ? "suspend_user" : "unsuspend_user", "user", uid);
   revalidatePath("/admin/users");
   revalidatePath(`/admin/users/${uid}`);
@@ -116,7 +116,7 @@ export async function setRole(fd: FormData) {
   const uid = id(fd);
   if (uid === me.id) return;
   const role = z.enum(["user", "admin"]).parse(fd.get("role"));
-  await sb.from("profiles").update({ role }).eq("id", uid);
+  { const { error } = await sb.from("profiles").update({ role }).eq("id", uid); if (error) return { error: "That didn't save. Please try again." }; }
   await audit(sb, me.id, role === "admin" ? "promote_admin" : "demote_admin", "user", uid);
   revalidatePath("/admin/users");
   revalidatePath(`/admin/users/${uid}`);
@@ -147,7 +147,7 @@ export async function setCampusActive(fd: FormData) {
   const { me, sb } = await requireAdmin();
   const cid = id(fd);
   const active = fd.get("active") === "true";
-  await sb.from("campuses").update({ active }).eq("id", cid);
+  { const { error } = await sb.from("campuses").update({ active }).eq("id", cid); if (error) return { error: "That didn't save. Please try again." }; }
   await audit(sb, me.id, active ? "activate_campus" : "deactivate_campus", "campus", cid);
   revalidatePath("/admin/campuses");
 }
@@ -177,7 +177,7 @@ export async function setCategoryActive(fd: FormData) {
   const { me, sb } = await requireAdmin();
   const cid = id(fd);
   const active = fd.get("active") === "true";
-  await sb.from("categories").update({ active }).eq("id", cid);
+  { const { error } = await sb.from("categories").update({ active }).eq("id", cid); if (error) return { error: "That didn't save. Please try again." }; }
   await audit(sb, me.id, active ? "activate_category" : "deactivate_category", "category", cid);
   revalidatePath("/admin/categories");
 }
@@ -202,7 +202,7 @@ export async function dismissReport(fd: FormData) {
 export async function removeReportedListing(fd: FormData) {
   const { me, sb, r } = await loadReport(fd);
   if (r.listing_id) {
-    await sb.from("listings").update({ status: "removed" }).eq("id", r.listing_id);
+    { const { error } = await sb.from("listings").update({ status: "removed" }).eq("id", r.listing_id); if (error) return { error: "That didn't save. Please try again." }; }
     await audit(sb, me.id, "remove_listing", "listing", r.listing_id, { report: r.id });
   }
   await done("actioned", r.id, sb);
@@ -214,7 +214,7 @@ export async function suspendReportedUser(fd: FormData) {
   let target = r.reported_user_id as string | null;
   if (!target && r.listing_id) target = (await sb.from("listings").select("seller_id").eq("id", r.listing_id).single()).data?.seller_id ?? null;
   if (target && target !== me.id) {
-    await sb.from("profiles").update({ suspended: true }).eq("id", target);
+    { const { error } = await sb.from("profiles").update({ suspended: true }).eq("id", target); if (error) return { error: "That didn't save. Please try again." }; }
     await audit(sb, me.id, "suspend_user", "user", target, { report: r.id });
   }
   await done("actioned", r.id, sb);
@@ -242,7 +242,7 @@ async function loadFlag(fd: FormData) {
 
 export async function dismissFlag(fd: FormData) {
   const { me, sb, f } = await loadFlag(fd);
-  await sb.from("content_flags").update({ status: "dismissed" }).eq("id", f.id);
+  { const { error } = await sb.from("content_flags").update({ status: "dismissed" }).eq("id", f.id); if (error) return { error: "That didn't save. Please try again." }; }
   await audit(sb, me.id, "dismiss_flag", "flag", f.id);
   revalidatePath("/admin/flags");
 }
@@ -251,7 +251,7 @@ export async function removeFlagged(fd: FormData) {
   const { me, sb, f } = await loadFlag(fd);
   if (f.target_type === "listing") await sb.from("listings").update({ status: "removed" }).eq("id", f.target_id);
   if (f.target_type === "wanted") await sb.from("wanted_ads").update({ status: "removed" }).eq("id", f.target_id);
-  await sb.from("content_flags").update({ status: "actioned" }).eq("id", f.id);
+  { const { error } = await sb.from("content_flags").update({ status: "actioned" }).eq("id", f.id); if (error) return { error: "That didn't save. Please try again." }; }
   await audit(sb, me.id, "remove_flagged_content", f.target_type, f.target_id, { flag: f.id });
   revalidatePath("/admin/flags");
 }
@@ -259,9 +259,9 @@ export async function removeFlagged(fd: FormData) {
 export async function suspendFlagged(fd: FormData) {
   const { me, sb, f } = await loadFlag(fd);
   if (f.user_id && f.user_id !== me.id) {
-    await sb.from("profiles").update({ suspended: true }).eq("id", f.user_id);
+    { const { error } = await sb.from("profiles").update({ suspended: true }).eq("id", f.user_id); if (error) return { error: "That didn't save. Please try again." }; }
     await audit(sb, me.id, "suspend_user", "user", f.user_id, { flag: f.id });
   }
-  await sb.from("content_flags").update({ status: "actioned" }).eq("id", f.id);
+  { const { error } = await sb.from("content_flags").update({ status: "actioned" }).eq("id", f.id); if (error) return { error: "That didn't save. Please try again." }; }
   revalidatePath("/admin/flags");
 }

@@ -5,6 +5,7 @@ import { Badge, dangerBtn, PageTitle, smallBtn } from "@/components/admin/ui";
 import { setRole, setSuspended } from "@/app/admin/actions";
 import { kes, timeAgo } from "@/lib/format";
 import { money } from "@/lib/receipts";
+import { ActionForm } from "@/components/ActionForm";
 
 export const metadata = { title: "User" };
 
@@ -29,8 +30,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         <Link href="/admin/users" className={smallBtn}>All users</Link>
         {!self && (
           <>
-            <form action={setSuspended}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="suspended" value={String(!u.suspended)} /><button className={u.suspended ? smallBtn : dangerBtn}>{u.suspended ? "Unsuspend" : "Suspend"}</button></form>
-            <form action={setRole}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="role" value={u.role === "admin" ? "user" : "admin"} /><button className={smallBtn}>{u.role === "admin" ? "Remove admin" : "Make admin"}</button></form>
+            <ActionForm action={setSuspended} success="User updated" confirm={u.suspended ? undefined : "Suspend this user? They won't be able to post or contact others."} danger><input type="hidden" name="id" value={u.id} /><input type="hidden" name="suspended" value={String(!u.suspended)} /><button className={u.suspended ? smallBtn : dangerBtn}>{u.suspended ? "Unsuspend" : "Suspend"}</button></ActionForm>
+            <ActionForm action={setRole} success="Role updated" confirm={u.role === "admin" ? undefined : "Give this person full admin access?"}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="role" value={u.role === "admin" ? "user" : "admin"} /><button className={smallBtn}>{u.role === "admin" ? "Remove admin" : "Make admin"}</button></ActionForm>
           </>
         )}
       </PageTitle>

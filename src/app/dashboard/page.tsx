@@ -2,9 +2,9 @@ import Link from "next/link";
 import { requireMe } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { deleteListing, markSold, renewListing } from "@/app/sell/actions";
-import { ConfirmButton } from "@/components/sell/ConfirmButton";
 import { Notice } from "@/components/ui/form";
 import { closeWanted, deleteWanted } from "@/app/wanted/actions";
+import { ActionForm } from "@/components/ActionForm";
 
 export const metadata = { title: "My dashboard" };
 
@@ -95,15 +95,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Link href={`/sell/${l.id}/edit`} className={small}>Edit</Link>
                       {l.status === "active" && (
-                        <form action={markSold}><input type="hidden" name="id" value={l.id} />
-                          <ConfirmButton message="Mark this listing as sold?" className={small}>{l.type === "goods" ? "Mark sold" : "Mark done"}</ConfirmButton></form>
+                        <ActionForm action={markSold} success="Marked as sold" confirm="Mark this listing as sold?"><input type="hidden" name="id" value={l.id} />
+                          <button className={small}>{l.type === "goods" ? "Mark sold" : "Mark done"}</button></ActionForm>
                       )}
                       {(l.status === "active" || l.status === "sold") && <Link href={`/receipts/new?listing=${l.id}`} className={small}>Issue receipt</Link>}
                       {canRenew && (
-                        <form action={renewListing}><input type="hidden" name="id" value={l.id} /><button className={small}>Renew 30 days</button></form>
+                        <ActionForm action={renewListing} success="Renewed for 30 days"><input type="hidden" name="id" value={l.id} /><button className={small}>Renew 30 days</button></ActionForm>
                       )}
-                      <form action={deleteListing}><input type="hidden" name="id" value={l.id} />
-                        <ConfirmButton message="Delete this listing permanently?" className={`${small} text-danger`}>Delete</ConfirmButton></form>
+                      <ActionForm action={deleteListing} success="Listing deleted" confirm="Delete this listing permanently?" danger><input type="hidden" name="id" value={l.id} />
+                        <button className={`${small} text-danger`}>Delete</button></ActionForm>
                     </div>
                   )}
                 </div>
@@ -130,11 +130,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
                 </div>
                 <div className="flex gap-2">
                   {w.status === "active" && (
-                    <form action={closeWanted}><input type="hidden" name="id" value={w.id} />
-                      <ConfirmButton message="Close this ad? It will stop appearing in the feed." className={small}>Found it</ConfirmButton></form>
+                    <ActionForm action={closeWanted} success="Ad closed" confirm="Close this ad? It will stop appearing in the feed."><input type="hidden" name="id" value={w.id} />
+                      <button className={small}>Found it</button></ActionForm>
                   )}
-                  <form action={deleteWanted}><input type="hidden" name="id" value={w.id} />
-                    <ConfirmButton message="Delete this wanted ad?" className={`${small} text-danger`}>Delete</ConfirmButton></form>
+                  <ActionForm action={deleteWanted} success="Ad deleted" confirm="Delete this wanted ad?" danger><input type="hidden" name="id" value={w.id} />
+                    <button className={`${small} text-danger`}>Delete</button></ActionForm>
                 </div>
               </li>
             ))}

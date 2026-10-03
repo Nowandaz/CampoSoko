@@ -62,6 +62,6 @@ export async function unblockUser(fd: FormData) {
   const me = await requireMe("/account");
   const target = z.string().uuid().parse(fd.get("id"));
   const sb = await createClient();
-  await sb.from("blocks").delete().eq("blocker_id", me.id).eq("blocked_id", target);
+  { const { error } = await sb.from("blocks").delete().eq("blocker_id", me.id).eq("blocked_id", target); if (error) return { error: "That didn't save. Please try again." }; }
   revalidatePath("/account");
 }

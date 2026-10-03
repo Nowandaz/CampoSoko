@@ -7,6 +7,7 @@ import { logout } from "@/app/(auth)/actions";
 import { unblockUser } from "@/app/safety/actions";
 import { DeleteAccount } from "@/components/auth/DeleteAccount";
 import { PasswordForm } from "@/components/auth/PasswordForm";
+import { ActionForm } from "@/components/ActionForm";
 
 export const metadata = { title: "My account" };
 
@@ -46,7 +47,7 @@ export default async function Page() {
               return (
                 <li key={bid} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                   <span>{n?.shop_name ?? n?.public_name ?? "A user"}</span>
-                  <form action={unblockUser}><input type="hidden" name="id" value={bid} /><button className="h-9 rounded-lg border border-border px-3 font-medium hover:bg-muted">Unblock</button></form>
+                  <ActionForm action={unblockUser} success="Unblocked"><input type="hidden" name="id" value={bid} /><button className="h-9 rounded-lg border border-border px-3 font-medium hover:bg-muted">Unblock</button></ActionForm>
                 </li>
               );
             })}

@@ -28,7 +28,7 @@ export async function proxy(request: NextRequest) {
   if (!data.user && needsLogin.some((p) => path === p || path.startsWith(p + "/"))) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.search = `?next=${encodeURIComponent(path)}`;
+    url.search = `?next=${encodeURIComponent(path)}&notice=login-required`;
     return NextResponse.redirect(url);
   }
 
@@ -43,7 +43,7 @@ export async function proxy(request: NextRequest) {
 
   if (data.user && (path === "/admin" || path.startsWith("/admin/"))) {
     const { data: p } = await supabase.from("profiles").select("role, suspended").eq("id", data.user.id).single();
-    if (p?.role !== "admin" || p.suspended) return NextResponse.redirect(new URL("/", request.url));
+    if (p?.role !== "admin" || p.suspended) return NextResponse.redirect(new URL("/?notice=admin-only", request.url));
   }
   return response;
 }

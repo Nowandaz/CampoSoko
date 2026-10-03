@@ -5,6 +5,7 @@ import { deleteProvider, runAiNow, saveAiSettings, saveProvider, testProviders, 
 import { Notice, Spinner, inputCls } from "@/components/ui/form";
 import { Check, Alert, X } from "@/components/ui/icons";
 import { smallBtn } from "./ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export type ProviderRow = { id: string; name: string; type: "openai" | "gemini" | "anthropic"; key_hint: string | null; endpoint: string | null; model: string | null; weight: number; active: boolean };
 export type SettingsRow = { ai_enabled: boolean; daily_cap: number; run_cap: number; auto_hide: boolean; ai_search: boolean; ai_shop_helper: boolean; notify_photo_reviews: boolean };
@@ -19,12 +20,12 @@ const PRESETS = [
 
 function Switch({ on, label, action, id }: { on: boolean; label: string; action: (fd: FormData) => Promise<void>; id: string }) {
   return (
-    <form action={action}>
+    <ActionForm action={action} success={on ? "Provider switched off" : "Provider switched on"}>
       <input type="hidden" name="id" value={id} /><input type="hidden" name="active" value={String(!on)} />
       <button aria-label={label} aria-pressed={on} className={`relative h-7 w-12 rounded-full transition-colors ${on ? "bg-primary" : "bg-border"}`}>
         <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${on ? "left-[1.375rem]" : "left-0.5"}`} />
       </button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -99,10 +100,10 @@ export function ProviderList({ providers }: { providers: ProviderRow[] }) {
           <div className="flex items-center gap-1">
             <Switch on={p.active} id={p.id} action={toggleProvider} label={`${p.active ? "Disable" : "Enable"} ${p.name}`} />
             <ProviderDialog p={p}>Edit</ProviderDialog>
-            <form action={deleteProvider} onSubmit={(e) => { if (!confirm(`Delete ${p.name}?`)) e.preventDefault(); }}>
+            <ActionForm action={deleteProvider} success="Provider deleted" confirm={`Delete ${p.name}? Its key will be removed.`} danger>
               <input type="hidden" name="id" value={p.id} />
               <button aria-label={`Delete ${p.name}`} className="grid h-10 w-10 place-items-center rounded-lg text-danger hover:bg-danger/10"><X /></button>
-            </form>
+            </ActionForm>
           </div>
         </li>
       ))}

@@ -39,14 +39,14 @@ export async function createWanted(_: WantedState, fd: FormData): Promise<Wanted
 export async function closeWanted(fd: FormData) {
   const me = await requireMe("/dashboard");
   const sb = await createClient();
-  await sb.from("wanted_ads").update({ status: "fulfilled" }).eq("id", String(fd.get("id"))).eq("user_id", me.id);
+  { const { error } = await sb.from("wanted_ads").update({ status: "fulfilled" }).eq("id", String(fd.get("id"))).eq("user_id", me.id); if (error) return { error: "That didn't save. Please try again." }; }
   revalidatePath("/dashboard");
 }
 
 export async function deleteWanted(fd: FormData) {
   const me = await requireMe("/dashboard");
   const sb = await createClient();
-  await sb.from("wanted_ads").delete().eq("id", String(fd.get("id"))).eq("user_id", me.id);
+  { const { error } = await sb.from("wanted_ads").delete().eq("id", String(fd.get("id"))).eq("user_id", me.id); if (error) return { error: "That didn't save. Please try again." }; }
   revalidatePath("/dashboard");
 }
 

@@ -4,7 +4,7 @@ import { useSafeForm } from "@/lib/use-safe-form";
 import { blockUser, submitReport } from "@/app/safety/actions";
 import { Notice, Spinner, inputCls } from "@/components/ui/form";
 import { Flag } from "@/components/ui/icons";
-import { ConfirmButton } from "@/components/sell/ConfirmButton";
+import { ActionForm } from "@/components/ActionForm";
 
 const REASONS = ["Prohibited item or service", "Scam or fraud", "Fake or misleading", "Wrong category", "Inappropriate content", "Harassment", "Other"];
 const ghost = "inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground";
@@ -44,10 +44,10 @@ export function ReportButton({ kind, target, loggedIn, loginHref }: { kind: "lis
 
 export function BlockButton({ target, back }: { target: string; back: string }) {
   return (
-    <form action={blockUser}>
+    <ActionForm action={blockUser} success="Blocked" confirm="Block this person? You won't see each other's contact buttons." danger>
       <input type="hidden" name="id" value={target} />
       <input type="hidden" name="back" value={back} />
-      <ConfirmButton message="Block this person? You won't see each other's contact buttons." className={ghost}>Block</ConfirmButton>
-    </form>
+      <button className={ghost}>Block</button>
+    </ActionForm>
   );
 }

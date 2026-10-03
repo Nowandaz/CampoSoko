@@ -21,6 +21,6 @@ export const getMe = cache(async (): Promise<Me | null> => {
 
 export async function requireMe(next = "/") {
   const me = await getMe();
-  if (!me) redirect(`/login?next=${encodeURIComponent(next)}`);
+  if (!me) redirect(`/login?next=${encodeURIComponent(next)}&notice=login-required`);
   return me;
 }

@@ -70,6 +70,8 @@ Run `npm run dev -- -H 0.0.0.0` and open `http://<your-computer-ip>:3000` on a p
   My purchases, and thumbs-up/down reviews.
 - Self-serve account deletion (Account page, needs password): removes profile, shop, listings, wanted ads, photos and
   notifications; receipts stay as anonymous records.
+- Themed feedback everywhere: toasts and confirm dialogs instead of browser pop-ups, live in-app notifications (bell + toast
+  within ~30s), clear offline/server error messages, and friendly redirect notices.
 - Report and block. Terms and Privacy drafts (**have a lawyer review them before launch**).
 - Admin (`/admin`): stats and charts, listings, wanted ads, users, reports, receipts, campuses, categories, flags,
   audit log, CSV export.
