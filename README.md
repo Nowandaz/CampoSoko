@@ -72,6 +72,8 @@ Run `npm run dev -- -H 0.0.0.0` and open `http://<your-computer-ip>:3000` on a p
   notifications; receipts stay as anonymous records.
 - Themed feedback everywhere: toasts and confirm dialogs instead of browser pop-ups, live in-app notifications (bell + toast
   within ~30s), clear offline/server error messages, and friendly redirect notices.
+- Install prompt: returning visitors are offered "Get the app" (native install on Android and desktop, Add to Home Screen
+  steps on iPhone); offline page and maskable icons included.
 - Report and block. Terms and Privacy drafts (**have a lawyer review them before launch**).
 - Admin (`/admin`): stats and charts, listings, wanted ads, users, reports, receipts, campuses, categories, flags,
   audit log, CSV export.

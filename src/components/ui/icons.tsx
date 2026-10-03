@@ -21,3 +21,5 @@ export const ThumbDown = ({ className }: P) => (<svg {...base} className={classN
 export const Store = ({ className }: P) => (<svg {...base} className={className}><path d="M4 9l1.5-5h13L20 9" /><path d="M4 9a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 6 0 2.5 2.5 0 0 0 5 0" /><path d="M5 12v8h14v-8M10 20v-5h4v5" /></svg>);
 export const Flag = ({ className }: P) => (<svg {...base} className={className}><path d="M5 21V4M5 4h12l-2 4 2 4H5" /></svg>);
 export const X = ({ className }: P) => (<svg {...base} className={className}><path d="M6 6l12 12M18 6L6 18" /></svg>);
+export const Share = ({ className }: P) => (<svg {...base} className={className}><path d="M12 3v12M8 7l4-4 4 4" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" /></svg>);
+export const Download = ({ className }: P) => (<svg {...base} className={className}><path d="M12 4v11M8 11l4 4 4-4" /><path d="M5 19h14" /></svg>);
