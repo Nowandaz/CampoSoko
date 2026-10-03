@@ -11,6 +11,16 @@ export type FormState = { error?: string; step?: "code"; email?: string; notice?
 
 const GENERIC_SENT = "If this email can be used, a 6-digit code is on its way.";
 
+/** Logs the real cause server-side; shows users a helpful (non-sensitive) message. */
+function describeSendError(error: { message: string; status?: number; code?: string }) {
+  console.error("[auth] signInWithOtp failed:", error.status, error.code, error.message);
+  const m = error.message.toLowerCase();
+  if (error.status === 429 || m.includes("rate limit")) return "Too many emails sent right now. Please wait a few minutes and try again.";
+  if (m.includes("sending") && m.includes("email")) return "We couldn't send the email. The mail server (SMTP) settings need checking.";
+  if (m.includes("database error")) return "Your details were rejected (check the campus email rule and WhatsApp number).";
+  return "Could not send the code. Please try again.";
+}
+
 async function limited(email: string) {
   const ip = await clientIp();
   const okEmail = await allow(`otp:email:${email}`, 5, 3600);
@@ -42,7 +52,7 @@ export async function requestSignupCode(_: FormState, fd: FormData): Promise<For
     email,
     options: { shouldCreateUser: true, data: { full_name, whatsapp, campus_id } },
   });
-  if (error) return { error: "Could not send the code. Please try again." };
+  if (error) return { error: describeSendError(error) };
   return { step: "code", email, notice: GENERIC_SENT };
 }
 
