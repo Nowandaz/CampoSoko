@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { deleteListing, markSold, renewListing } from "@/app/sell/actions";
 import { ConfirmButton } from "@/components/sell/ConfirmButton";
 import { Notice } from "@/components/ui/form";
+import { closeWanted, deleteWanted } from "@/app/wanted/actions";
 
 export const metadata = { title: "My dashboard" };
 
@@ -17,15 +18,16 @@ const daysUntil = (iso: string) => Math.ceil((new Date(iso).getTime() - Date.now
 const small = "inline-flex h-9 items-center rounded-lg border border-border px-3 text-sm font-medium transition-colors hover:bg-muted";
 const kes = new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", maximumFractionDigits: 0 });
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ posted?: string; saved?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ posted?: string; saved?: string; wanted?: string }> }) {
   const q = await searchParams;
   const me = await requireMe("/dashboard");
   const sb = await createClient();
-  const [{ data: seller }, { data: listings }, { data: stats }] = await Promise.all([
+  const [{ data: seller }, { data: listings }, { data: stats }, { data: wanted }] = await Promise.all([
     sb.from("seller_profiles").select("shop_name").eq("user_id", me.id).maybeSingle(),
     sb.from("listings").select("id, type, title, price, status, quantity, expires_at, created_at, listing_images(url, position)")
       .eq("seller_id", me.id).order("created_at", { ascending: false }),
     sb.rpc("seller_listing_stats"),
+    sb.from("wanted_ads").select("id, title, status, notify, budget, created_at").eq("user_id", me.id).order("created_at", { ascending: false }),
   ]);
   type Stat = { listing_id: string; views: number; contact_clicks: number };
   const byId = new Map<string, Stat>(((stats ?? []) as Stat[]).map((s) => [s.listing_id, s]));
@@ -48,6 +50,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
 
       {q.posted && <Notice notice="Your listing is live." />}
       {q.saved && <Notice notice="Changes saved." />}
+      {q.wanted && <Notice notice="Your wanted ad is live." />}
 
       <dl className="grid grid-cols-3 gap-3">
         {[["Listings", listings?.length ?? 0], ["Views", totalViews], ["WhatsApp clicks", totalClicks]].map(([label, n]) => (
@@ -107,6 +110,35 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
           })}
         </ul>
       )}
+
+      <section className="space-y-3" aria-labelledby="my-wanted">
+        <div className="flex items-center justify-between">
+          <h2 id="my-wanted" className="text-lg font-semibold">My wanted ads</h2>
+          <Link href="/wanted/new" className={small}>Post a wanted ad</Link>
+        </div>
+        {!wanted?.length ? (
+          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">You have no wanted ads. Post one and get alerted when a match appears.</p>
+        ) : (
+          <ul className="divide-y divide-border rounded-2xl border border-border bg-card">
+            {wanted.map((w) => (
+              <li key={w.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+                <div className="min-w-0">
+                  <Link href={`/wanted/${w.id}`} className="font-medium hover:underline">{w.title}</Link>
+                  <p className="text-xs text-muted-foreground capitalize">{w.status === "fulfilled" ? "closed" : w.status}{w.notify ? " · alerts on" : ""}</p>
+                </div>
+                <div className="flex gap-2">
+                  {w.status === "active" && (
+                    <form action={closeWanted}><input type="hidden" name="id" value={w.id} />
+                      <ConfirmButton message="Close this ad? It will stop appearing in the feed." className={small}>Found it</ConfirmButton></form>
+                  )}
+                  <form action={deleteWanted}><input type="hidden" name="id" value={w.id} />
+                    <ConfirmButton message="Delete this wanted ad?" className={`${small} text-danger`}>Delete</ConfirmButton></form>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

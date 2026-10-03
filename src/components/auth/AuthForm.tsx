@@ -41,52 +41,44 @@ function CodeStep({ email, next, resend }: { email: string; next: string; resend
   );
 }
 
-type Mode = "password" | "code" | "reset";
-
 export function LoginForm({ next }: { next: string }) {
-  const [mode, setMode] = useState<Mode>("password");
+  const [reset, setReset] = useState(false);
   const [codeState, codeAction, codePending] = useActionState(requestLoginCode, {});
   const [pwState, pwAction, pwPending] = useActionState(loginWithPassword, {});
   if (codeState.step === "code" && codeState.email) {
-    return <CodeStep email={codeState.email} next={mode === "reset" ? "/account#password" : next} resend={codeAction} />;
+    return <CodeStep email={codeState.email} next="/set-password" resend={codeAction} />;
   }
-  const tab = (m: Mode, label: string) => (
-    <button type="button" role="tab" aria-selected={mode === m} onClick={() => setMode(m)}
-      className={`h-9 rounded-md text-sm font-medium transition-colors ${mode === m ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>{label}</button>
-  );
+  if (reset) {
+    return (
+      <form action={codeAction} className="space-y-5">
+        <p className="rounded-lg bg-muted px-3.5 py-3 text-sm text-muted-foreground">Enter your email. We will send a code, then you can choose a new password.</p>
+        <Field label="Email address">
+          <input name="email" type="email" autoComplete="email" required placeholder="you@university.ac.ke" className={inputCls} />
+        </Field>
+        <Notice error={codeState.error} />
+        <button className={btnPrimary} disabled={codePending}>{codePending && <Spinner />}{codePending ? "Sending code" : "Send me a code"}</button>
+        <p className="text-center text-sm"><button type="button" onClick={() => setReset(false)} className={link}>Back to log in</button></p>
+      </form>
+    );
+  }
   return (
-    <div className="space-y-5">
-      {mode !== "reset" && <div role="tablist" aria-label="Login method" className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">{tab("password", "Password")}{tab("code", "Email code")}</div>}
-      {mode === "password" ? (
-        <form action={pwAction} className="space-y-5">
-          <input type="hidden" name="next" value={next} />
-          <Field label="Email address">
-            <input name="email" type="email" autoComplete="email" required placeholder="you@university.ac.ke" className={inputCls} />
-          </Field>
-          <Field label="Password"><PasswordInput name="password" autoComplete="current-password" /></Field>
-          <Notice error={pwState.error} />
-          <button className={btnPrimary} disabled={pwPending}>{pwPending && <Spinner />}{pwPending ? "Logging in" : "Log in"}</button>
-          <p className="text-center text-sm"><button type="button" onClick={() => setMode("reset")} className={link}>Forgot password?</button></p>
-        </form>
-      ) : (
-        <form action={codeAction} className="space-y-5">
-          {mode === "reset" && <p className="rounded-lg bg-muted px-3.5 py-3 text-sm text-muted-foreground">We will email you a code. Once you are in, you can choose a new password.</p>}
-          <Field label="Email address">
-            <input name="email" type="email" autoComplete="email" required placeholder="you@university.ac.ke" className={inputCls} />
-          </Field>
-          <Notice error={codeState.error} />
-          <button className={btnPrimary} disabled={codePending}>{codePending && <Spinner />}{codePending ? "Sending code" : "Send me a code"}</button>
-          {mode === "reset" && <p className="text-center text-sm"><button type="button" onClick={() => setMode("password")} className={link}>Back to password login</button></p>}
-        </form>
-      )}
+    <form action={pwAction} className="space-y-5">
+      <input type="hidden" name="next" value={next} />
+      <Field label="Email address">
+        <input name="email" type="email" autoComplete="email" required placeholder="you@university.ac.ke" className={inputCls} />
+      </Field>
+      <Field label="Password"><PasswordInput name="password" autoComplete="current-password" /></Field>
+      <Notice error={pwState.error} />
+      <button className={btnPrimary} disabled={pwPending}>{pwPending && <Spinner />}{pwPending ? "Logging in" : "Log in"}</button>
+      <p className="text-center text-sm"><button type="button" onClick={() => setReset(true)} className={link}>Forgot password?</button></p>
       <p className="text-center text-sm text-muted-foreground">New to CampoSoko? <Link href="/signup" className={link}>Create an account</Link></p>
-    </div>
+    </form>
   );
 }
 
 export function SignupForm({ campuses, next }: { campuses: Campus[]; next: string }) {
   const [state, action, pending] = useActionState(requestSignupCode, {});
-  if (state.step === "code" && state.email) return <CodeStep email={state.email} next={next} resend={action} />;
+  if (state.step === "code" && state.email) return <CodeStep email={state.email} next={`/set-password?next=${encodeURIComponent(next)}`} resend={action} />;
   return (
     <form action={action} className="space-y-4">
       <Field label="Full name">

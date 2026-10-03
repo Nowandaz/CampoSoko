@@ -1,6 +1,8 @@
 "use server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { notifyWantedMatches } from "@/lib/matching";
 import { createClient } from "@/lib/supabase/server";
 import { requireMe } from "@/lib/auth";
 import { listingSchema, sellerProfileSchema, firstError } from "@/lib/validation";
@@ -64,6 +66,8 @@ export async function createListing(_: SellState, fd: FormData): Promise<SellSta
   if (images.length) {
     await sb.from("listing_images").insert(images.map((url, position) => ({ listing_id: listing.id, url, position })));
   }
+  // Alert buyers whose wanted ads match; runs after the response so posting stays fast.
+  after(() => notifyWantedMatches(listing.id).catch((e) => console.error("[matching] failed:", e)));
   revalidatePath("/dashboard");
   redirect("/dashboard?posted=1");
 }

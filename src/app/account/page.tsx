@@ -21,7 +21,7 @@ export default async function Page() {
       <section className="rounded-2xl border border-border bg-card p-6 shadow-sm"><AccountForm name={me.full_name} whatsapp={me.whatsapp} /></section>
       <section id="password" className="mt-6 scroll-mt-20 rounded-2xl border border-border bg-card p-6 shadow-sm">
         <h2 className="text-lg font-semibold">Password</h2>
-        <p className="mb-4 mt-1 text-sm text-muted-foreground">Optional. Set a password to log in without waiting for an email code. You can always use an email code instead.</p>
+        <p className="mb-4 mt-1 text-sm text-muted-foreground">Change the password you use to log in.</p>
         <PasswordForm />
       </section>
     </div>

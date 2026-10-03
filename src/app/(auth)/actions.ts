@@ -104,22 +104,24 @@ export async function loginWithPassword(_: FormState, fd: FormData): Promise<For
   const password = String(fd.get("password") ?? "");
   if (!email.success || !password) return { error: "Enter your email and password" };
   if (!(await allow(`pw:${email.data}`, 8, 900)) || !(await allow(`pw:ip:${await clientIp()}`, 30, 900))) {
-    return { error: "Too many attempts. Wait 15 minutes, or log in with an email code instead." };
+    return { error: "Too many attempts. Wait 15 minutes and try again, or use Forgot password." };
   }
   const sb = await createClient();
   const { error } = await sb.auth.signInWithPassword({ email: email.data, password });
-  if (error) return { error: "Wrong email or password. If you haven't set a password yet, use an email code." };
+  if (error) return { error: "Wrong email or password. Forgot it? Choose Forgot password to get a code and set a new one." };
   redirect(safeNext(fd.get("next")));
 }
 
 export async function setPassword(_: FormState, fd: FormData): Promise<FormState> {
-  await requireMe("/account");
+  await requireMe("/set-password");
   const parsed = newPasswordSchema.safeParse({ password: fd.get("password"), confirm: fd.get("confirm") });
   if (!parsed.success) return { error: firstError(parsed.error) };
   const sb = await createClient();
-  const { error } = await sb.auth.updateUser({ password: parsed.data.password });
+  // has_password lets the proxy force first-time users through the set-password step.
+  const { error } = await sb.auth.updateUser({ password: parsed.data.password, data: { has_password: true } });
   if (error) {
     return { error: /different from the old/i.test(error.message) ? "Choose a password you haven't used before." : "Could not update your password. Try again." };
   }
-  return { notice: "Password saved. You can now log in with it." };
+  if (fd.get("redirect")) redirect(safeNext(fd.get("next")));
+  return { notice: "Password saved." };
 }

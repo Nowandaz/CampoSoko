@@ -32,6 +32,15 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // First-time users must choose a password before using the app (codes are only for verification and resets).
+  const free = ["/set-password", "/terms", "/privacy", "/login"];
+  if (data.user && !data.user.user_metadata?.has_password && !free.some((p) => path === p || path.startsWith(p + "/"))) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/set-password";
+    url.search = `?next=${encodeURIComponent(path)}`;
+    return NextResponse.redirect(url);
+  }
+
   if (data.user && (path === "/admin" || path.startsWith("/admin/"))) {
     const { data: p } = await supabase.from("profiles").select("role, suspended").eq("id", data.user.id).single();
     if (p?.role !== "admin" || p.suspended) return NextResponse.redirect(new URL("/", request.url));

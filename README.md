@@ -16,6 +16,7 @@ The app name lives in one place: `src/config/site.ts` (`APP_NAME`).
    - `supabase/migrations/20260101000200_rate_limit_grant.sql`
    - `supabase/migrations/20260101000300_seller_stats.sql`
    - `supabase/migrations/20260101000400_events_privacy.sql`
+   - `supabase/migrations/20260101000500_wanted_matching.sql`
    - `supabase/seed.sql` (3 campuses + categories)
    - Shortcut: paste `supabase/setup-all.sql` (all of the above) into the SQL Editor and run once.
 4. Supabase dashboard → Authentication:
@@ -39,4 +40,5 @@ The app name lives in one place: `src/config/site.ts` (`APP_NAME`).
 - [x] 2. OTP sign-up / login, campus dropdown, account page
 - [x] 3. Seller profile, listings (goods + services), image upload, seller dashboard
 - [x] 4. Public feed, search and filters, listing detail, WhatsApp contact, view tracking; optional password login
-- [ ] 5–9. See project brief
+- [x] 5. Wanted ads, match alerts (in-app + email), notification bell
+- [ ] 6–9. See project brief

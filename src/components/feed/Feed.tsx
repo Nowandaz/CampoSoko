@@ -50,7 +50,10 @@ export async function Feed({ p, userId }: { p: FeedParams; userId?: string }) {
     if (!items.length) return <Empty title="No wanted ads yet" text="Looking for something? Post what you need and sellers on campus will reach out." href="/wanted/new" cta="Post a wanted ad" />;
     return (
       <>
-        <p className="mb-3 text-sm text-muted-foreground">{total} wanted {total === 1 ? "ad" : "ads"}</p>
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">{total} wanted {total === 1 ? "ad" : "ads"}</p>
+          <Link href="/wanted/new" className="text-sm font-semibold text-primary hover:underline">Post a wanted ad</Link>
+        </div>
         <ul className="grid gap-3 sm:grid-cols-2">
           {items.map((w) => (
             <li key={w.id}>

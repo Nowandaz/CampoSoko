@@ -3,6 +3,7 @@ import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { getMe } from "@/lib/auth";
 import { logout } from "@/app/(auth)/actions";
+import { NotificationBell } from "./NotificationBell";
 
 const ghost = "inline-flex h-10 items-center rounded-lg px-3.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground";
 const solid = "inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-hover";
@@ -16,6 +17,7 @@ export async function Header() {
         <nav className="flex items-center gap-1" aria-label="Main">
           {me ? (
             <>
+              <NotificationBell userId={me.id} />
               <Link href="/dashboard" className={ghost}>Dashboard</Link>
               {me.role === "admin" && <Link href="/admin" className={ghost}>Admin</Link>}
               <Link href="/account" className={ghost}>{me.full_name.split(" ")[0]}</Link>

@@ -84,3 +84,14 @@ export const listingSchema = z.object({
 export const passwordSchema = z.string().min(8, "Use at least 8 characters").max(72, "Password is too long");
 export const newPasswordSchema = z.object({ password: passwordSchema, confirm: z.string() })
   .refine((v) => v.password === v.confirm, { message: "Passwords don't match", path: ["confirm"] });
+
+export const wantedSchema = z.object({
+  type: z.enum(["goods", "service"]),
+  title: text(3, 100, "Title"),
+  description: text(10, 1000, "Description"),
+  category_id: z.string().uuid("Choose a category"),
+  budget: z.preprocess((v) => (v === "" || v == null ? undefined : v), z.coerce.number().min(0).max(10_000_000).optional()),
+  keywords: z.string().optional().transform((v) =>
+    [...new Set((v ?? "").split(",").map((k) => cleanText(k).toLowerCase()).filter((k) => k.length > 1 && k.length <= 30))].slice(0, 10)),
+  notify: z.string().optional().transform((v) => v === "on"),
+});
