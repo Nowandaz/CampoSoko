@@ -7,9 +7,8 @@ function H({ children }: { children: React.ReactNode }) { return <h2 className="
 export default function Page() {
   return (
     <article className="mx-auto max-w-2xl text-[15px] leading-relaxed text-foreground/90">
-      <p role="note" className="rounded-lg border border-danger/30 bg-danger/10 px-4 py-3 text-sm font-semibold text-danger">DRAFT - review by a lawyer before launch</p>
-      <h1 className="mt-6 text-3xl font-semibold tracking-tight">Privacy Policy</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Last updated: draft</p>
+      <h1 className="text-3xl font-semibold tracking-tight">Privacy Policy</h1>
+      <p className="mt-1 text-sm text-muted-foreground">Last updated: October 2026</p>
       <p className="mt-4">This policy explains how {APP_NAME} handles personal data, and is written to align with Kenya&apos;s Data Protection Act, 2019.</p>
 
       <H>1. Data we collect</H>
