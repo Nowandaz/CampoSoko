@@ -12,16 +12,21 @@ export type ListingInitial = {
   delivery_time: string | null; portfolio_url: string | null; images: string[];
 };
 
-export function ListingForm({ userId, categories, defaultLocation, initial }: {
+type FormAction = (prev: { error?: string }, fd: FormData) => Promise<{ error?: string }>;
+
+export function ListingForm({ userId, categories, defaultLocation, initial, formAction, extraTop, cancelHref = "/dashboard" }: {
   userId: string; categories: Cat[]; defaultLocation: string; initial?: ListingInitial;
+  /** Admin pages pass their own server action; defaults to the seller's create/update. */
+  formAction?: FormAction; extraTop?: React.ReactNode; cancelHref?: string;
 }) {
   const editing = Boolean(initial);
-  const [state, action, pending] = useActionState(editing ? updateListing : createListing, {});
+  const [state, action, pending] = useActionState(formAction ?? (editing ? updateListing : createListing), {});
   const [type, setType] = useState<"goods" | "service">(initial?.type ?? "goods");
   const cats = categories.filter((c) => c.applies_to === "both" || c.applies_to === type);
 
   return (
     <form action={action} className="space-y-5">
+      {extraTop}
       {initial && <input type="hidden" name="id" value={initial.id} />}
       <input type="hidden" name="type" value={type} />
 
@@ -106,7 +111,7 @@ export function ListingForm({ userId, categories, defaultLocation, initial }: {
         <button className={`${btnPrimary} sm:w-auto sm:min-w-44`} disabled={pending}>
           {pending && <Spinner />}{pending ? "Saving" : editing ? "Save changes" : "Publish listing"}
         </button>
-        <Link href="/dashboard" className="inline-flex h-12 items-center justify-center rounded-lg border border-border px-5 text-[15px] font-medium hover:bg-muted">Cancel</Link>
+        <Link href={cancelHref} className="inline-flex h-12 items-center justify-center rounded-lg border border-border px-5 text-[15px] font-medium hover:bg-muted">Cancel</Link>
       </div>
     </form>
   );

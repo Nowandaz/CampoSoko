@@ -20,7 +20,8 @@ const load = cache(async (id: string) => {
     .select("*, listing_images(url, position), categories(name), campuses(name)").eq("id", id).maybeSingle();
   if (!l || l.status === "removed" || l.status === "expired") {
     // owners may still open their own expired listing from the dashboard
-    return l && (await getMe())?.id === l.seller_id ? { l, seller: null } : null;
+    const viewer = await getMe();
+    return l && (viewer?.id === l.seller_id || viewer?.role === "admin") ? { l, seller: null } : null;
   }
   const { data: seller } = await sb.from("public_profiles").select("*").eq("id", l.seller_id).maybeSingle();
   return { l, seller };

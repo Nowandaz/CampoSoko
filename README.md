@@ -19,6 +19,7 @@ The app name lives in one place: `src/config/site.ts` (`APP_NAME`).
    - `supabase/migrations/20260101000500_wanted_matching.sql`
    - `supabase/migrations/20260101000600_public_names.sql`
    - `supabase/migrations/20260101000700_receipts.sql`
+   - `supabase/migrations/20260101000800_admin.sql`
    - `supabase/seed.sql` (3 campuses + categories)
    - Shortcut: paste `supabase/setup-all.sql` (all of the above) into the SQL Editor and run once.
 4. Supabase dashboard → Authentication:
@@ -44,7 +45,8 @@ The app name lives in one place: `src/config/site.ts` (`APP_NAME`).
 - [x] 4. Public feed, search and filters, listing detail, WhatsApp contact, view tracking; optional password login
 - [x] 5. Wanted ads, match alerts (in-app + email), notification bell
 - [x] 6. Receipts: numbered, immutable, void with reason, PDF, WhatsApp share, public verification, My purchases
-- [ ] 7–9. See project brief
+- [x] 7. Admin dashboard (overview, listings, wanted, users, reports, receipts, campuses, categories, audit log, CSV export)
+- [ ] 8–9. See project brief
 
 ## Testing on your phone
 Run `npm run dev -- -H 0.0.0.0`, then open `http://<your-computer-ip>:3000` on a phone on the same Wi-Fi.
@@ -53,3 +55,7 @@ Run `npm run dev -- -H 0.0.0.0`, then open `http://<your-computer-ip>:3000` on a
 ## Demo data
 `npm run seed:demo` adds sellers, ~36 listings (spread over every campus) and wanted ads. `npm run seed:clear` removes them.
 The feed defaults to your own campus; use Filters, then Campus, then All campuses to see everything.
+
+## Becoming an admin
+Run in the Supabase SQL Editor: `update profiles set role = 'admin' where email = 'you@example.com';`
+Admins can then promote others from `/admin/users`. `/admin` is gated in the proxy, in every page/action, and by RLS.
