@@ -2,15 +2,16 @@
 import { useSafeForm } from "@/lib/use-safe-form";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { loginWithPassword, requestLoginCode, requestSignupCode, verifyCode } from "@/app/(auth)/actions";
+import { loginWithPassword, requestLoginCode, requestSignupCode, resendCode, verifyCode } from "@/app/(auth)/actions";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Field, Notice, Spinner, btnPrimary, inputCls } from "@/components/ui/form";
 
 type Campus = { id: string; name: string };
 const link = "inline-flex h-10 items-center font-medium text-primary hover:underline";
 
-function CodeStep({ email, next, resend }: { email: string; next: string; resend: (fd: FormData) => void }) {
+function CodeStep({ email, next }: { email: string; next: string }) {
   const [state, action, pending] = useSafeForm(verifyCode, {});
+  const [resendState, resendAction, resendPending] = useSafeForm(resendCode, {});
   const [wait, setWait] = useState(45);
   useEffect(() => {
     if (wait <= 0) return;
@@ -32,10 +33,11 @@ function CodeStep({ email, next, resend }: { email: string; next: string; resend
         <Notice error={state.error} />
         <button className={btnPrimary} disabled={pending}>{pending && <Spinner />}{pending ? "Verifying" : "Verify and continue"}</button>
       </form>
-      <form action={(fd) => { setWait(45); resend(fd); }} className="text-center text-sm">
+      <form onSubmit={(e) => { setWait(45); resendAction(e); }} className="space-y-2 text-center text-sm">
         <input type="hidden" name="email" value={email} />
-        <button disabled={wait > 0} className="font-medium text-primary hover:underline disabled:text-muted-foreground disabled:no-underline">
-          {wait > 0 ? `Resend code in ${wait}s` : "Resend code"}
+        <Notice error={resendState.error} notice={resendState.notice} />
+        <button disabled={wait > 0 || resendPending} className="font-medium text-primary hover:underline disabled:text-muted-foreground disabled:no-underline">
+          {resendPending ? "Sending" : wait > 0 ? `Resend code in ${wait}s` : "Resend code"}
         </button>
       </form>
     </div>
@@ -44,10 +46,10 @@ function CodeStep({ email, next, resend }: { email: string; next: string; resend
 
 export function LoginForm({ next }: { next: string }) {
   const [reset, setReset] = useState(false);
-  const [codeState, codeAction, codePending, codeActionSend] = useSafeForm(requestLoginCode, {});
+  const [codeState, codeAction, codePending] = useSafeForm(requestLoginCode, {});
   const [pwState, pwAction, pwPending] = useSafeForm(loginWithPassword, {});
   if (codeState.step === "code" && codeState.email) {
-    return <CodeStep email={codeState.email} next="/set-password" resend={codeActionSend} />;
+    return <CodeStep email={codeState.email} next="/set-password" />;
   }
   if (reset) {
     return (
@@ -78,8 +80,8 @@ export function LoginForm({ next }: { next: string }) {
 }
 
 export function SignupForm({ campuses, next }: { campuses: Campus[]; next: string }) {
-  const [state, action, pending, actionSend] = useSafeForm(requestSignupCode, {});
-  if (state.step === "code" && state.email) return <CodeStep email={state.email} next={`/set-password?next=${encodeURIComponent(next)}`} resend={actionSend} />;
+  const [state, action, pending] = useSafeForm(requestSignupCode, {});
+  if (state.step === "code" && state.email) return <CodeStep email={state.email} next={`/set-password?next=${encodeURIComponent(next)}`} />;
   return (
     <form onSubmit={action} className="space-y-4">
       <Field label="Full name">
