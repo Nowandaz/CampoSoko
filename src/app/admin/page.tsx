@@ -57,7 +57,7 @@ export default async function Page() {
       {o.open_reports > 0 && (
         <Link href="/admin/reports" className="flex items-center justify-between gap-3 rounded-2xl bg-primary-soft p-5 ring-1 ring-primary/20 hover:ring-primary/40">
           <span className="flex items-center gap-3"><Bell className="text-primary" /><span><b className="font-semibold">{o.open_reports} report{o.open_reports === 1 ? "" : "s"}</b> waiting for review</span></span>
-          <span className="text-sm font-medium text-primary">Review &rarr;</span>
+          <span className="text-sm font-medium text-primary">Review</span>
         </Link>
       )}
       <Group title="People" icon={<User className="h-5 w-5" />}>

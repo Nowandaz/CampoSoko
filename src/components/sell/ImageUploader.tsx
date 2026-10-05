@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/images";
 import { MAX_IMAGES } from "@/config/site";
+import { X } from "@/components/ui/icons";
 
 type Props = {
   userId: string;
@@ -55,12 +56,12 @@ export function ImageUploader({ userId, bucket, initial = [], max = MAX_IMAGES, 
             <img src={u} alt={`Upload ${i + 1}`} className="h-full w-full object-cover" />
             {i === 0 && max > 1 && <span className="absolute bottom-0 left-0 right-0 bg-black/60 py-0.5 text-center text-[10px] font-medium text-white">Cover</span>}
             <button type="button" onClick={() => setUrls((x) => x.filter((y) => y !== u))} aria-label={`Remove image ${i + 1}`}
-              className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/65 text-sm leading-none text-white hover:bg-black">×</button>
+              className="absolute right-1 top-1 grid h-7 w-7 place-items-center rounded-full bg-black/65 text-white hover:bg-black"><X className="h-3.5 w-3.5" /></button>
             <input type="hidden" name={name} value={u} />
           </div>
         ))}
         {Array.from({ length: busy }).map((_, i) => (
-          <div key={`b${i}`} className="grid h-24 w-24 place-items-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">Uploading…</div>
+          <div key={`b${i}`} className="grid h-24 w-24 place-items-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">Uploading</div>
         ))}
         {(max === 1 ? urls.length === 0 : urls.length + busy < max) && (
           <button type="button" onClick={() => input.current?.click()}

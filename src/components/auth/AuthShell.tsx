@@ -13,7 +13,10 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
   return (
     <div className="mx-auto grid max-w-4xl grid-cols-1 items-start gap-10 py-4 md:grid-cols-[1fr_400px] md:py-10">
       <aside className="hidden md:block">
-        <p className="text-sm font-semibold uppercase tracking-wider text-primary">{APP_NAME}</p>
+        <p className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-brand">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-mark.png" alt="" width={36} height={36} />{APP_NAME}
+        </p>
         <h2 className="mt-3 text-3xl font-semibold leading-tight tracking-tight">The marketplace built for campus life.</h2>
         <ul className="mt-8 space-y-5">
           {points.map(({ icon: Icon, title, text }) => (

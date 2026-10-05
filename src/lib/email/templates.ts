@@ -8,9 +8,9 @@ export function matchEmail(o: { name: string; wantedTitle: string; listingTitle:
   const html = renderEmail({
     title: "New match for your wanted ad",
     preheader: `${o.listingTitle} was just posted on ${APP_NAME}.`,
-    bodyHtml: `<h1 style="margin:0 0 8px;font-size:22px">Good news, ${first}</h1>
-<p style="margin:0 0 16px;color:#44403c">Something just came up that matches your wanted ad <b>${escapeHtml(o.wantedTitle)}</b>.</p>
-<div style="border:1px solid #fed7aa;background:#fff7ed;border-radius:12px;padding:16px;margin:0 0 20px">
+    bodyHtml: `<h1 style="margin:0 0 8px;font-size:22px">New listing for your wanted ad</h1>
+<p style="margin:0 0 16px;color:#44403c">Hi ${first}, a listing was just posted that matches your wanted ad <b>${escapeHtml(o.wantedTitle)}</b>.</p>
+<div style="border:1px solid #ece6e0;background:#faf8f5;border-radius:8px;padding:16px;margin:0 0 20px">
   <div style="font-size:17px;font-weight:700">${escapeHtml(o.listingTitle)}</div>
   <div style="margin-top:4px;color:#ea580c;font-weight:700;font-size:18px">${kes(o.price)}</div>
 </div>
@@ -27,7 +27,7 @@ export function demandEmail(o: { name: string; shop: string; wantedTitle: string
     preheader: `Wanted: ${o.wantedTitle}`,
     bodyHtml: `<h1 style="margin:0 0 8px;font-size:22px">A buyer is looking for something you sell</h1>
 <p style="margin:0 0 16px;color:#44403c">Hi ${escapeHtml(o.name.split(" ")[0] || "there")}, a student on your campus just posted a wanted ad that matches the tags on <b>${escapeHtml(o.shop)}</b>.</p>
-<div style="border:1px solid #fed7aa;background:#fff7ed;border-radius:12px;padding:16px;margin:0 0 20px"><div style="font-size:17px;font-weight:700">${escapeHtml(o.wantedTitle)}</div></div>
+<div style="border:1px solid #ece6e0;background:#faf8f5;border-radius:8px;padding:16px;margin:0 0 20px"><div style="font-size:17px;font-weight:700">${escapeHtml(o.wantedTitle)}</div></div>
 <p style="margin:0 0 24px;text-align:center">${button(url, "See the request")}</p>
 <p style="margin:0 0 16px;color:#78716c;font-size:13px">You get this because your shop tags match. Edit your tags any time from your seller profile.</p>`,
   });

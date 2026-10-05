@@ -19,4 +19,4 @@ export function decrypt(b64: string) {
   return Buffer.concat([d.update(buf.subarray(28)), d.final()]).toString("utf8");
 }
 
-export const keyHint = (k: string) => (k.length > 10 ? `${k.slice(0, 4)}…${k.slice(-4)}` : "••••");
+export const keyHint = (k: string) => (k.length > 10 ? `${k.slice(0, 4)}...${k.slice(-4)}` : "****");

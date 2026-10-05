@@ -98,7 +98,7 @@ export async function updateProfile(_: FormState, fd: FormData): Promise<FormSta
   const { error } = await sb.from("profiles").update(parsed.data).eq("id", me.id);
   if (error) return { error: "Could not save your changes" };
   revalidatePath("/account");
-  return { notice: "Saved ✔" };
+  return { notice: "Changes saved" };
 }
 
 export async function loginWithPassword(_: FormState, fd: FormData): Promise<FormState> {
