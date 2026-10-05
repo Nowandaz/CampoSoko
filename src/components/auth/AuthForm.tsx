@@ -24,7 +24,10 @@ function CodeStep({ email, next }: { email: string; next: string }) {
         <input type="hidden" name="email" value={email} />
         <input type="hidden" name="next" value={next} />
         <p className="rounded-lg bg-muted px-3.5 py-3 text-sm text-muted-foreground">
-          We sent a 6-digit code to <b className="text-foreground">{email}</b>. It may take a minute. Check spam too.
+          We sent a 6-digit code to <b className="text-foreground">{email}</b>. It may take a minute.
+        </p>
+        <p className="rounded-lg border border-border px-3.5 py-3 text-sm text-muted-foreground">
+          <b className="text-foreground">Can&apos;t find it?</b> Look in your Spam or Junk folder, and mark it as not spam. University mailboxes often filter new senders.
         </p>
         <Field label="Verification code">
           <input name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="\d{6}" required autoFocus
