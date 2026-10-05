@@ -70,6 +70,20 @@ export async function requestLoginCode(_: FormState, fd: FormData): Promise<Form
   return { step: "code", email, notice: GENERIC_SENT };
 }
 
+/** Re-sends a code to an address that already asked for one (signup or login). Works for unconfirmed accounts too. */
+export async function resendCode(_: FormState, fd: FormData): Promise<FormState> {
+  const parsed = emailSchema.safeParse(fd.get("email"));
+  if (!parsed.success) return { error: firstError(parsed.error), step: "code" };
+  const email = parsed.data;
+  const rl = await limited(email);
+  if (!rl.okCooldown) return { error: "Please wait a moment before requesting another code", step: "code", email };
+  if (!rl.okEmail || !rl.okIp) return { error: "Too many attempts. Try again in an hour.", step: "code", email };
+  const sb = await createClient();
+  const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
+  if (error) return { error: describeSendError(error), step: "code", email };
+  return { step: "code", email, notice: "A new code is on its way. Check spam too." };
+}
+
 export async function verifyCode(_: FormState, fd: FormData): Promise<FormState> {
   const email = emailSchema.safeParse(fd.get("email"));
   const token = otpSchema.safeParse(fd.get("code"));
