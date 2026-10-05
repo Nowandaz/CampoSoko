@@ -15,7 +15,10 @@ export function Footer({ padForNav = false }: { padForNav?: boolean }) {
       <div className="mx-auto max-w-5xl px-4">
         <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div className="max-w-xs">
-            <p className="text-lg font-semibold tracking-tight">Campo<span className="text-primary">Soko</span></p>
+            <p className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-brand">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-mark.png" alt="" width={30} height={30} />{APP_NAME}
+            </p>
             <p className="mt-1 text-sm font-medium">{APP_TAGLINE}</p>
             <p className="mt-3 text-sm text-muted-foreground">A free marketplace for university students in Kenya. Buy, sell and request goods and online services on your campus.</p>
           </div>

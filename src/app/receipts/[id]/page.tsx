@@ -25,7 +25,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const waHref = `https://wa.me/${buyerPhone ? buyerPhone.replace(/\D/g, "") : ""}?text=${encodeURIComponent(text)}`;
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <Link href="/receipts" className="inline-flex h-10 items-center text-sm font-medium text-muted-foreground hover:text-foreground">&larr; All receipts</Link>
+      <Link href="/receipts" className="inline-flex h-10 items-center text-sm font-medium text-muted-foreground hover:text-foreground">All receipts</Link>
       {(await searchParams).issued && <Notice notice="Receipt issued. Share it with the buyer below." />}
       <ReceiptView r={r} qr={await qrFor(r.token)} />
       {!r.voided && (!isSeller || existing) && <ReviewBox token={r.token} seller={r.seller} existing={existing ?? null} />}

@@ -5,9 +5,12 @@ import { DISCLAIMER, methodLabel, money, type ReceiptData } from "@/lib/receipts
 export function ReceiptView({ r, qr }: { r: ReceiptData; qr?: string }) {
   return (
     <article className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-      <div className="flex items-center justify-between bg-primary px-5 py-4 text-primary-foreground">
-        <p className="text-lg font-semibold tracking-tight">{APP_NAME}</p>
-        <p className="text-sm font-medium opacity-90">Receipt</p>
+      <div className="flex items-center justify-between border-b-2 border-primary px-5 py-4">
+        <p className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-brand">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-mark.png" alt="" width={30} height={30} />{APP_NAME}
+        </p>
+        <p className="text-sm font-medium text-muted-foreground">Receipt</p>
       </div>
       {r.voided && (
         <div role="alert" className="border-b border-danger/30 bg-danger/10 px-5 py-3 text-sm text-danger">

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { APP_NAME, APP_TAGLINE } from "@/config/site";
+import { APP_NAME, APP_TAGLINE, SITE_URL } from "@/config/site";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { BottomNav } from "@/components/BottomNav";
@@ -12,6 +12,7 @@ import { getMe } from "@/lib/auth";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: `${APP_NAME} - ${APP_TAGLINE}`, template: `%s | ${APP_NAME}` },
   description: "Buy, sell and request goods and online services on your campus.",
   applicationName: APP_NAME,

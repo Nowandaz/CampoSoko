@@ -1,11 +1,13 @@
 import { Document, Page, StyleSheet, Text, View, Image } from "@react-pdf/renderer";
 import { APP_NAME } from "@/config/site";
 import { DISCLAIMER, methodLabel, money, type ReceiptData } from "@/lib/receipts";
+import { LOGO_PNG } from "@/lib/logo-data";
 
 const s = StyleSheet.create({
   page: { padding: 36, fontSize: 10, fontFamily: "Helvetica", color: "#1c1917" },
-  band: { backgroundColor: "#ea580c", color: "#ffffff", padding: 14, flexDirection: "row", justifyContent: "space-between", borderRadius: 4 },
-  brand: { fontSize: 18, fontFamily: "Helvetica-Bold" },
+  band: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingBottom: 12, borderBottomWidth: 2, borderBottomColor: "#ea580c" },
+  brandRow: { flexDirection: "row", alignItems: "center" },
+  brand: { fontSize: 18, fontFamily: "Helvetica-Bold", color: "#391945", marginLeft: 8 },
   void: { marginTop: 10, padding: 8, backgroundColor: "#fee2e2", color: "#b91c1c", borderRadius: 4, fontFamily: "Helvetica-Bold" },
   row: { flexDirection: "row", justifyContent: "space-between", marginTop: 14 },
   label: { fontSize: 8, color: "#78716c", textTransform: "uppercase", marginBottom: 2 },
@@ -25,7 +27,14 @@ export function ReceiptPdf({ r, qr, url }: { r: ReceiptData; qr?: string; url: s
   return (
     <Document title={`Receipt ${r.receipt_no}`} author={APP_NAME}>
       <Page size="A4" style={s.page}>
-        <View style={s.band}><Text style={s.brand}>{APP_NAME}</Text><Text>Receipt</Text></View>
+        <View style={s.band}>
+          <View style={s.brandRow}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt */}
+            <Image src={LOGO_PNG} style={{ width: 28, height: 28 }} />
+            <Text style={s.brand}>{APP_NAME}</Text>
+          </View>
+          <Text style={{ color: "#6b645e" }}>Receipt</Text>
+        </View>
         {r.voided && <Text style={s.void}>VOID{r.void_reason ? `: ${r.void_reason}` : ""}</Text>}
         <View style={s.row}>
           <View><Text style={s.label}>Receipt no.</Text><Text style={s.value}>{r.receipt_no}</Text></View>

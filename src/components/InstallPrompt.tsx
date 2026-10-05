@@ -71,7 +71,7 @@ export function InstallPrompt() {
     <aside aria-label={`Install ${APP_NAME}`} className="toast-in fixed inset-x-3 bottom-20 z-50 mx-auto max-w-md rounded-2xl bg-card p-4 shadow-xl ring-1 ring-border md:inset-x-auto md:bottom-6 md:left-6 md:mx-0">
       <div className="flex items-start gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-mark.svg" alt="" width={44} height={44} className="rounded-xl" />
+        <img src="/logo-mark.png" alt="" width={44} height={44} />
         <div className="min-w-0 flex-1">
           <p className="font-semibold leading-snug">Get the {APP_NAME} app</p>
           {event ? (
